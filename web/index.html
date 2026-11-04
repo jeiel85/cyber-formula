@@ -200,6 +200,15 @@
     .boost { padding: 10px 14px; }
     .boost svg { width: 38px; height: 38px; }
   }
+  @media (min-width: 861px) and (max-height: 680px) {
+    .deck h2 { display: none; }
+    .deck { gap: 10px; }
+    .modes button { padding: 6px 4px 5px; }
+    .switch { padding: 4px; }
+    .boost { padding: 8px 12px; }
+    .boost svg { width: 32px; height: 32px; }
+    .boost .label b { font-size: 22px; }
+  }
   @media (max-width: 860px) {
     .hud {
       grid-template-columns: minmax(0, 1fr);
@@ -249,7 +258,7 @@
   <header class="brand">
     <div class="eyebrow"><i></i>Cyber Formula · Fan Garage</div>
     <h1>SUPER ASURADA <span>01</span></h1>
-    <p>파츠나 번호 마커를 누르면 설명이 나옵니다. 오른쪽 패널에서 모드를 바꾸고, 캐노피와 에어 브레이크를 열고, 부스트를 점화해 보세요.</p>
+    <p>파츠나 번호 마커를 누르면 설명이 나옵니다. 오른쪽 패널에서 모드를 바꾸고, 캐노피와 엔진 커버를 열고, 부스트를 점화해 보세요.</p>
   </header>
 
   <nav class="views panel" aria-label="카메라 시점">
@@ -264,7 +273,7 @@
   </nav>
 
   <section class="left" aria-live="polite">
-    <div class="hint panel" id="hint"><b>조작</b> · 드래그로 회전, 휠·핀치로 확대. 차체 아무 곳이나 눌러 보세요. 키보드: <kbd>B</kbd> 부스트 <kbd>C</kbd> 캐노피 <kbd>A</kbd> 에어 브레이크 <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 모드</div>
+    <div class="hint panel" id="hint"><b>조작</b> · 드래그로 회전, 휠·핀치로 확대. 차체 아무 곳이나 눌러 보세요. 키보드: <kbd>B</kbd> 부스트 <kbd>C</kbd> 캐노피 <kbd>E</kbd> 엔진 커버 <kbd>A</kbd> 에어 브레이크 <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 모드</div>
     <article class="card panel" id="card" hidden>
       <header>
         <div class="num" id="card-num">01</div>
@@ -307,6 +316,7 @@
     </div>
     <div class="switches">
       <button type="button" class="switch" role="switch" id="sw-canopy" aria-checked="false"><span class="knob"></span><span class="txt"><b>캐노피</b><small id="sw-canopy-sub">닫힘</small></span><kbd>C</kbd></button>
+      <button type="button" class="switch" role="switch" id="sw-engine" aria-checked="false"><span class="knob"></span><span class="txt"><b>엔진 커버</b><small id="sw-engine-sub">닫힘</small></span><kbd>E</kbd></button>
       <button type="button" class="switch" role="switch" id="sw-airbrake" aria-checked="false"><span class="knob"></span><span class="txt"><b>에어 브레이크</b><small id="sw-airbrake-sub">접힘</small></span><kbd>A</kbd></button>
       <button type="button" class="switch" role="switch" id="sw-markers" aria-checked="true"><span class="knob"></span><span class="txt"><b>파츠 마커</b><small>번호 표시</small></span><kbd>M</kbd></button>
       <button type="button" class="switch" role="switch" id="sw-airflow" aria-checked="false"><span class="knob"></span><span class="txt"><b>기류 표시</b><small>풍동 스모크 라인</small></span><kbd>F</kbd></button>
