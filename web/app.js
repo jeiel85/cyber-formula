@@ -20,100 +20,100 @@ const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const PARTS = [
   {
     id: 'nose', name: '노즈 & 헤드라이트', en: 'Nose · headlights',
-    desc: '프런트 카울 한가운데 얹힌 흰 노즈입니다. 양옆의 노란 렌즈가 헤드라이트이고, 노즈 윗면은 그대로 캐노피 앞끝으로 이어져 차 앞부분 전체가 낮은 쐐기를 이룹니다.',
-    facts: [['차체 전장', '5.0 m'], ['노즈 끝 높이', '지면에서 0.14 m'], ['헤드라이트', '노란 렌즈 2개']],
-    actions: [], anchor: [0, 0.36, 2.10], space: 'chassis',
-    cam: { pos: [2.3, 1.2, 4.0], target: [0, 0.25, 2.0] },
+    desc: '낮은 프런트 카울 한가운데에서 솟아오르는 흰 노즈 척추입니다. 양옆 경사면의 노란 셰브런 램프가 헤드라이트이고, 노즈 윗면은 뒤로 갈수록 높아져 그대로 캐노피 앞끝으로 이어집니다.',
+    facts: [['차체 전장', '4.97 m'], ['캐노피 앞끝 높이', '지면에서 0.55 m'], ['헤드라이트', '노란 셰브런 2개']],
+    actions: [], anchor: [0, 0.48, 1.80], space: 'chassis',
+    cam: { pos: [2.3, 1.2, 4.0], target: [0, 0.3, 1.85] },
   },
   {
     id: 'front_cowl', name: '프런트 카울 & 블레이드', en: 'Front cowl · blade horns',
-    desc: '차 앞을 넓게 덮는 쐐기형 카울과 양끝의 낫 모양 블레이드입니다. 카울 앞끝은 지면 가까이 내려가 있고, 블레이드는 앞으로 갈수록 안쪽으로 휘며 날카롭게 끝납니다. 카울 뒷전의 작은 플랩은 에어로 모드에서 각도를 키우고 랠리 모드에서는 눕습니다.',
-    facts: [['카울 폭', '2.00 m'], ['블레이드 끝 간격', '1.84 m'], ['플랩 받음각 (서킷)', '12°']],
-    actions: ['mode:aero', 'mode:rally'], anchor: [0.80, 0.34, 2.05], space: 'chassis',
+    desc: '차 앞을 넓게 덮는 쐐기형 카울과 양끝의 블레이드 혼입니다. 카울 앞전은 가운데가 가장 앞선 V자로 지면 가까이 내려가 있고, 윗면은 뒤로 가며 0.33m까지 오릅니다. 블레이드 혼은 옆면이 파랗고 마루가 흰 칼날 모양으로, 앞으로 갈수록 가늘어져 날카롭게 끝납니다. 카울 뒷전의 작은 플랩은 에어로 모드에서 각도를 키우고 랠리 모드에서는 눕습니다.',
+    facts: [['카울 폭', '1.84 m'], ['블레이드 바깥 폭', '2.27 m'], ['플랩 받음각 (서킷)', '12°']],
+    actions: ['mode:aero', 'mode:rally'], anchor: [0.99, 0.40, 1.95], space: 'chassis',
     cam: { pos: [3.0, 1.2, 4.3], target: [0.3, 0.15, 2.0] },
   },
   {
     id: 'front_wheels', name: '프런트 4륜', en: 'Six-wheel layout · front',
     desc: '앞바퀴를 두 쌍, 모두 네 개로 나눈 6륜 구조입니다. 좁은 콕핏 척추에서 긴 암을 뻗어 바퀴를 바깥 멀리 두었습니다. 바퀴를 작게 만들어 정면 면적을 줄이면서 앞쪽 접지 면적은 넓히는 발상으로, 1976년 F1의 티렐 P34가 실제로 쓴 방식이기도 합니다.',
-    facts: [['타이어 지름', '0.50 m'], ['타이어 폭', '0.30 m'], ['앞 트레드', '1.84 m']],
-    actions: ['boost'], anchor: [1.20, 0.42, 0.93], space: 'root',
-    cam: { pos: [3.6, 1.0, 2.2], target: [0.9, 0.25, 0.93] },
+    facts: [['타이어 지름', '0.47 m'], ['타이어 폭', '0.39 m'], ['앞 트레드', '1.91 m']],
+    actions: ['boost'], anchor: [1.24, 0.40, 0.94], space: 'root',
+    cam: { pos: [3.6, 1.0, 2.2], target: [0.95, 0.24, 0.94] },
   },
   {
     id: 'suspension', name: '서스펜션 암', en: 'Wishbone suspension',
     desc: '바퀴마다 위아래 두 쌍의 위시본 암이 차체에 이어집니다. 앞바퀴가 바깥 멀리 있어 앞쪽 암이 특히 깁니다. 랠리 모드로 바꾸면 차체가 140mm 떠오르면서 암이 길게 늘어납니다.',
     facts: [['랠리 모드 차고', '+140 mm'], ['에어로 모드 차고', '−20 mm'], ['암 개수', '24개']],
-    actions: ['mode:rally', 'mode:circuit'], anchor: [0.58, 0.36, 1.22], space: 'root',
-    cam: { pos: [2.2, 0.6, 2.8], target: [0.55, 0.25, 1.1] },
+    actions: ['mode:rally', 'mode:circuit'], anchor: [0.62, 0.32, 1.22], space: 'root',
+    cam: { pos: [2.2, 0.6, 2.8], target: [0.6, 0.25, 1.1] },
   },
   {
     id: 'cockpit', name: '콕핏', en: 'Cockpit',
     desc: '앞바퀴 사이의 좁은 척추를 파내 만든 1인승 콕핏입니다. 등받이가 깊이 누운 시트, 스티어링 휠, 대시보드가 들어 있습니다. 캐노피를 열면 안쪽이 잘 보입니다.',
-    facts: [['콕핏 개구부', '0.54 × 1.12 m'], ['척추 최대 폭', '0.84 m']],
-    actions: ['canopy'], anchor: [0.42, 0.68, 0.45], space: 'chassis',
-    cam: { pos: [1.8, 1.8, 1.6], target: [0, 0.45, 0.4] },
+    facts: [['콕핏 개구부', '0.40 × 1.00 m'], ['척추 최대 폭', '0.94 m']],
+    actions: ['canopy'], anchor: [0.36, 0.66, 0.40], space: 'chassis',
+    cam: { pos: [1.8, 1.8, 1.6], target: [0, 0.5, 0.35] },
   },
   {
     id: 'canopy', name: '캐노피', en: 'Canopy',
-    desc: '흰 테두리를 두른 긴 쐐기형 캐노피입니다. 꼭대기가 뒤로 갈수록 높아져 리어 바디 윗면으로 이어집니다. 앞끝 힌지를 축으로 뒤쪽이 들리며 열리고, 밑단은 차체 윗면 곡선을 그대로 따라 닫혔을 때 틈 없이 맞물립니다.',
-    facts: [['길이', '2.03 m'], ['개방 각도', '41°'], ['힌지', '앞끝']],
-    actions: ['canopy'], anchor: [0, 1.00, 0.30], space: 'chassis',
+    desc: '앞끝이 뾰족하고 뒤로 갈수록 넓어지는 물방울형 캐노피입니다. 유리 가운데를 흰 지붕 마루가 지나며, 마루는 뒤로 갈수록 높아져 콕핏 뒤 차체로 이어집니다. 앞끝 힌지를 축으로 뒤쪽이 들리며 열리고, 밑단은 차체 윗면 곡선을 그대로 따라 닫혔을 때 틈 없이 맞물립니다.',
+    facts: [['길이', '1.65 m'], ['개방 각도', '41°'], ['힌지', '앞끝']],
+    actions: ['canopy'], anchor: [0, 0.98, -0.05], space: 'chassis',
     cam: { pos: [2.5, 2.0, 2.3], target: [0, 0.7, 0.4] },
   },
   {
     id: 'cyber_system', name: '사이버 시스템 ASURADA', en: 'Cyber System AI',
     desc: '대시보드의 빛나는 화면이 이 차의 두뇌인 AI 내비게이션 아스라다입니다. 원작에서 아스라다는 드라이버와 대화하며 주행 데이터를 분석하고 조언하는 사이버 시스템으로 나옵니다. 이 뷰어에서는 왼쪽 아래 콘솔에 아스라다의 메시지가 뜹니다.',
     facts: [['위치', '대시보드 중앙'], ['화면', '실시간 상태 표시']],
-    actions: ['talk', 'canopy'], anchor: [0, 0.62, 0.81], space: 'chassis',
-    cam: { pos: [0.45, 1.2, -0.2], target: [0, 0.52, 0.8] },
+    actions: ['talk', 'canopy'], anchor: [0, 0.60, 0.74], space: 'chassis',
+    cam: { pos: [0.45, 1.2, -0.2], target: [0, 0.52, 0.74] },
   },
   {
     id: 'sidepods', name: '사이드 스폰슨', en: 'Side sponsons',
-    desc: '앞바퀴 바로 뒤에서 좁게 시작해 뒤로 갈수록 넓어지는 낮은 델타형 스폰슨입니다. 앞면 흡기구로 들어온 공기가 윗면 냉각 팬과 옆구리 루버로 빠져나갑니다. 가장 넓은 곳을 지나면 뒷바퀴 앞에서 안쪽으로 꺾여 들어가고, 윗면 뒤쪽에는 에어 브레이크 패널이 있습니다.',
-    facts: [['길이', '1.70 m'], ['최대 폭 (좌우 합)', '2.84 m'], ['냉각 팬', '좌우 1기씩']],
-    actions: ['airbrake'], anchor: [1.30, 0.56, -0.55], space: 'chassis',
-    cam: { pos: [3.6, 1.5, 0.9], target: [0.9, 0.35, -0.4] },
+    desc: '앞바퀴 바로 뒤, 콕핏 옆에서 뾰족하게 시작해 금세 넓어지는 낮은 스폰슨입니다. 윗면은 바깥쪽 숄더에서 가장 높고 끝으로 갈수록 낮아집니다. 앞면 흡기구로 들어온 공기가 윗면 냉각 팬과 옆구리 루버로 빠져나가고, 뒷바퀴 앞에서 안쪽으로 좁아집니다. 윗면 뒤쪽에는 에어 브레이크 패널이 있습니다.',
+    facts: [['길이', '1.47 m'], ['최대 폭 (좌우 합)', '1.89 m'], ['냉각 팬', '좌우 1기씩']],
+    actions: ['airbrake'], anchor: [0.93, 0.36, -0.45], space: 'chassis',
+    cam: { pos: [3.6, 1.5, 0.9], target: [0.7, 0.35, -0.4] },
   },
   {
     id: 'airbrake', name: '에어 브레이크', en: 'Air brakes',
     desc: '스폰슨 윗면 뒤쪽의 패널입니다. 뒤쪽 힌지를 축으로 앞쪽이 들려 바람을 정면으로 받아 감속을 돕습니다. 패널 안쪽은 빨간색이라 펼쳐지면 뒤따르는 차에서도 눈에 잘 띕니다.',
     facts: [['패널 길이', '0.40 m'], ['최대 각도', '57°'], ['힌지', '뒤쪽']],
-    actions: ['airbrake'], anchor: [0.80, 0.58, -0.85], space: 'chassis',
-    cam: { pos: [2.6, 1.7, 0.2], target: [0.75, 0.48, -0.85] },
+    actions: ['airbrake'], anchor: [0.66, 0.52, -0.55], space: 'chassis',
+    cam: { pos: [2.6, 1.7, 0.4], target: [0.62, 0.45, -0.6] },
   },
   {
     id: 'engine', name: 'V형 엔진 & 6연장 배기', en: 'V engine · exhaust',
-    desc: '캐노피 뒤로 높이 솟은 리어 바디 윗면의 엔진 커버를 열면 V형 엔진이 드러납니다. 양쪽 뱅크 위의 금색 캠 커버, 가운데 줄지은 흡기 트럼펫, 은색 배기 헤더가 보이고, 배기관은 꼬리 아래의 6연장 배기구로 모입니다.',
-    facts: [['엔진룸 길이', '0.90 m'], ['배기구', '6개'], ['커버 힌지', '앞쪽']],
-    actions: ['engine'], anchor: [0, 1.05, -1.0], space: 'chassis',
-    cam: { pos: [1.5, 2.1, -2.2], target: [0, 0.6, -1.0] },
+    desc: '콕핏 뒤, 두 나셀 사이로 좁아지는 흰 엔진 커버를 열면 V형 엔진이 드러납니다. 양쪽 뱅크 위의 금색 캠 커버, 가운데 줄지은 흡기 트럼펫, 은색 배기 헤더가 보이고, 배기관은 꼬리 아래의 6연장 배기구로 모입니다.',
+    facts: [['엔진룸 길이', '0.78 m'], ['배기구', '6개'], ['커버 힌지', '앞쪽']],
+    actions: ['engine'], anchor: [0, 0.96, -0.90], space: 'chassis',
+    cam: { pos: [0.55, 2.75, -2.35], target: [0, 0.62, -0.95] },
   },
   {
     id: 'boost_pods', name: '부스트 나셀', en: 'Boost nacelles',
-    desc: '꼬리 가운데에 거의 맞닿게 나란히 붙은 두 개의 큰 빨간 나셀입니다. 안쪽에 터빈 날개와 은색 노즐이 들어 있습니다. 부스트를 켜면 노즐에서 불꽃이 뿜어지고 나셀이 7cm 뒤로 미끄러져 나오며, 바퀴와 롤링 로드가 돌기 시작합니다.',
-    facts: [['나셀 지름', '0.42 m'], ['터빈 날개', '12장'], ['충전 시간', '1.2 초']],
-    actions: ['boost'], anchor: [0.235, 1.02, -2.05], space: 'chassis',
+    desc: '리어 바디를 이루는 두 개의 큰 나셀입니다. 콕핏 뒤에서 뾰족하게 시작한 파란 페어링이 굵어지다가 빨간 슈라우드로 이어지고, 그 안에 터빈 날개와 은색 노즐이 들어 있습니다. 부스트를 켜면 터빈이 돌기 시작하고, 점화 순간 충격파와 함께 노즐에서 불꽃과 불티가 뿜어집니다. 슈라우드가 7cm 뒤로 미끄러져 나오고, 차체가 떨리며 바퀴와 롤링 로드가 돌고 옆으로 바람 줄이 흐릅니다.',
+    facts: [['나셀 지름', '0.55 m'], ['터빈 날개', '12장'], ['충전 시간', '1.2 초']],
+    actions: ['boost'], anchor: [0.335, 1.04, -2.05], space: 'chassis',
     cam: { pos: [1.7, 1.4, -4.3], target: [0.1, 0.65, -2.1] },
   },
   {
     id: 'rear_wheels', name: '리어 타이어', en: 'Rear wheels',
-    desc: '구동을 맡는 큰 뒷바퀴입니다. 위는 리어 펜더가 덮고 있어 위에서는 보이지 않습니다. 휠은 흰 에어로 디스크로 덮여 있고, 부스트를 켜면 회전합니다.',
-    facts: [['타이어 지름', '0.67 m'], ['타이어 폭', '0.38 m'], ['뒤 트레드', '1.86 m']],
-    actions: ['boost'], anchor: [1.25, 0.46, -1.72], space: 'root',
-    cam: { pos: [3.6, 0.9, -3.0], target: [0.9, 0.34, -1.72] },
+    desc: '구동을 맡는 큰 뒷바퀴입니다. 위로 리어 윙이 지나가 위에서는 앞쪽 일부만 보입니다. 휠은 흰 에어로 디스크로 덮여 있고, 부스트를 켜면 회전합니다.',
+    facts: [['타이어 지름', '0.75 m'], ['타이어 폭', '0.52 m'], ['뒤 트레드', '1.94 m']],
+    actions: ['boost'], anchor: [1.32, 0.50, -1.56], space: 'root',
+    cam: { pos: [3.6, 0.9, -2.9], target: [0.95, 0.36, -1.56] },
   },
   {
-    id: 'tail_fins', name: '테일 핀 & 리어 펜더', en: 'Tail fins · rear fenders',
-    desc: '뒷바퀴를 위에서 덮는 펜더 바깥 끝에 선 거대한 핀입니다. 바깥으로 30° 눕고 뒤로 갈수록 12° 벌어지며, 끝단은 노랑입니다. 리어 윙 역할을 겸해 뒷바퀴를 눌러 줍니다. 에어로 모드에서는 받침에서 25cm 솟아오르며 더 바깥으로 눕습니다.',
-    facts: [['핀 꼭대기 높이', '1.50 m'], ['기울기', '바깥 30° · 토아웃 12°'], ['에어로 모드 상승', '+0.25 m']],
-    actions: ['mode:aero', 'mode:circuit'], anchor: [1.55, 1.68, -2.30], space: 'chassis',
+    id: 'tail_fins', name: '테일 핀 & 리어 윙', en: 'Tail fins · rear wing',
+    desc: '나셀에서 15° 들려 뻗은 리어 윙이 바깥 끝의 핀 포드로 이어지고, 포드 바깥에 거대한 테일 핀이 섭니다. 핀은 위쪽이 안으로 19° 기운 판이라 정면에서 보면 좌우 핀이 A자를 이루고, 뒷전은 노랑입니다. 에어로 모드에서는 포드와 핀이 함께 25cm 솟아오르며 바깥으로 조금 젖혀집니다.',
+    facts: [['핀 꼭대기 높이', '1.60 m'], ['기울기', '위쪽이 안으로 19°'], ['에어로 모드 상승', '+0.25 m']],
+    actions: ['mode:aero', 'mode:circuit'], anchor: [1.26, 1.70, -2.10], space: 'chassis',
     cam: { pos: [3.2, 2.0, -4.4], target: [0.7, 1.0, -2.0] },
   },
   {
     id: 'underbody', name: '플로어 & 디퓨저', en: 'Floor · diffuser',
     desc: '차체 바닥의 평평한 플로어와 꼬리 아래에서 비스듬히 올라가는 디퓨저입니다. 바닥 아래를 지나는 공기를 빠르게 뽑아내 차를 노면 쪽으로 끌어당깁니다. 꼬리 끝의 빨간 등은 레인 라이트로, 부스트 중에는 깜빡입니다.',
-    facts: [['디퓨저 핀', '4장'], ['플로어 높이', '지면에서 58 mm']],
-    actions: ['boost'], anchor: [0, 0.14, -2.25], space: 'chassis',
+    facts: [['디퓨저 핀', '4장'], ['플로어 높이', '지면에서 53 mm']],
+    actions: ['boost'], anchor: [0, 0.14, -2.22], space: 'chassis',
     cam: { pos: [1.4, 0.35, -4.4], target: [0, 0.2, -2.1] },
   },
 ];
@@ -127,7 +127,7 @@ const MODES = {
   },
   aero: {
     name: '에어로', ride: -0.02, fFlap: 0.18, finRise: 0.25, finLean: 0.10,
-    note: '에어로 모드. 테일 핀을 25cm 솟구쳐 바깥으로 더 눕히고, 카울 플랩을 세워 다운포스를 키웁니다. 차고 −20mm.',
+    note: '에어로 모드. 테일 핀을 포드째 25cm 솟구쳐 바깥으로 살짝 젖히고, 카울 플랩을 세워 다운포스를 키웁니다. 차고 −20mm.',
     say: '에어로 모드. 테일 핀 상승, 카울 플랩 전개.',
   },
   rally: {
@@ -152,7 +152,7 @@ const TALK = [
   '엔진 커버는 E 키로 열 수 있습니다. 금색 캠 커버를 확인해 보세요.',
   '랠리 모드에서 서스펜션 암이 얼마나 늘어나는지 지켜보세요.',
   '기류 표시를 켜면 공기가 차체를 어떻게 타고 넘는지 보입니다.',
-  '에어로 모드에서는 테일 핀이 받침에서 솟아오릅니다.',
+  '에어로 모드에서는 테일 핀이 리어 윙 끝에서 솟아오릅니다.',
   '캐노피를 열면 제가 있는 대시보드가 보입니다.',
 ];
 
@@ -361,17 +361,19 @@ const MATS = {
   paint_blue: new THREE.MeshPhysicalMaterial({ color: 0x1c42c4, roughness: 0.3, metalness: 0.15, clearcoat: 1, clearcoatRoughness: 0.06 }),
   paint_red: new THREE.MeshPhysicalMaterial({ color: 0xd3202c, roughness: 0.3, metalness: 0.05, clearcoat: 1, clearcoatRoughness: 0.06 }),
   paint_yellow: new THREE.MeshPhysicalMaterial({ color: 0xf2c230, roughness: 0.3, metalness: 0.05, clearcoat: 1, clearcoatRoughness: 0.06 }),
+  paint_gray: new THREE.MeshPhysicalMaterial({ color: 0x6b717b, roughness: 0.38, metalness: 0.2, clearcoat: 0.8, clearcoatRoughness: 0.12 }),
   gold: new THREE.MeshStandardMaterial({ color: 0xd2a640, roughness: 0.28, metalness: 1 }),
   chrome: new THREE.MeshStandardMaterial({ color: 0xdfe3e8, roughness: 0.1, metalness: 1 }),
   lamp_yellow: new THREE.MeshPhysicalMaterial({
-    color: 0xffc23a, roughness: 0.08, transparent: true, opacity: 0.88, clearcoat: 1, emissive: 0xff9a10, emissiveIntensity: 0.35,
+    color: 0xffd21f, roughness: 0.08, clearcoat: 1, emissive: 0xffb000, emissiveIntensity: 0.55,
   }),
   carbon: new THREE.MeshPhysicalMaterial({ color: 0x16181d, roughness: 0.42, metalness: 0.25, clearcoat: 0.6, clearcoatRoughness: 0.2 }),
   tire: new THREE.MeshStandardMaterial({ color: 0x141414, roughness: 0.9 }),
   rim: new THREE.MeshStandardMaterial({ color: 0xd0d5dd, roughness: 0.22, metalness: 1 }),
   metal_dark: new THREE.MeshStandardMaterial({ color: 0x3b3f45, roughness: 0.35, metalness: 1 }),
+  // 도면의 캐노피는 옅은 파랑으로 칠해져 있다. 실내가 비칠 만큼만 투명하게 둔다.
   glass: new THREE.MeshPhysicalMaterial({
-    color: 0x6fc4e6, roughness: 0.04, metalness: 0, clearcoat: 1, transparent: true, opacity: 0.30,
+    color: 0x86a9ee, roughness: 0.05, metalness: 0, clearcoat: 1, transparent: true, opacity: 0.58,
     side: THREE.DoubleSide, depthWrite: false, envMapIntensity: 1.6,
   }),
   glow_boost: new THREE.MeshBasicMaterial({ color: 0x0b1a2a, toneMapped: false }),
@@ -475,7 +477,7 @@ function partOf(obj, point) {
     if (!p) continue;
     if (p !== 'body') return p;
     const local = nodes.chassis.worldToLocal(point.clone());
-    return local.z > 1.68 ? 'nose' : local.z < -0.45 ? 'engine' : 'cockpit';
+    return local.z > 1.30 ? 'nose' : local.z < -0.40 ? 'engine' : 'cockpit';
   }
   return null;
 }
@@ -507,6 +509,7 @@ function setupCar(root) {
   prepareScreen();
   buildSuspension();
   buildFlames();
+  buildBoostFx();
   buildFinStalks();
   buildMarkers();
   buildDecals();
@@ -516,9 +519,9 @@ function buildRegionOverlays() {
   const body = nodes.body;
   if (!body) return;
   const regions = {
-    nose: [new THREE.Plane(V(0, 0, 1), -1.68)],
-    cockpit: [new THREE.Plane(V(0, 0, 1), 0.45), new THREE.Plane(V(0, 0, -1), 1.68)],
-    engine: [new THREE.Plane(V(0, 0, -1), -0.45)],
+    nose: [new THREE.Plane(V(0, 0, 1), -1.30)],
+    cockpit: [new THREE.Plane(V(0, 0, 1), 0.40), new THREE.Plane(V(0, 0, -1), 1.30)],
+    engine: [new THREE.Plane(V(0, 0, -1), -0.40)],
   };
   const meshes = [];
   body.traverse((o) => { if (o.isMesh) meshes.push(o); });
@@ -587,9 +590,9 @@ function buildSuspension() {
   geo.translate(0, 0.5, 0);
   geo.scale(2.4, 1, 0.55);
   const axles = [
-    { z: 1.22, hubX: 0.83, hubLo: 0.19, hubHi: 0.31, lo: [0.24, 0.17, 0.13], hi: [0.30, 0.38, 0.10] },
-    { z: 0.64, hubX: 0.83, hubLo: 0.19, hubHi: 0.31, lo: [0.26, 0.17, 0.13], hi: [0.32, 0.40, 0.10] },
-    { z: -1.72, hubX: 0.786, hubLo: 0.27, hubHi: 0.40, lo: [0.26, 0.20, 0.16], hi: [0.30, 0.42, 0.12] },
+    { z: 1.22, hubX: 0.82, hubLo: 0.175, hubHi: 0.295, lo: [0.50, 0.19, 0.13], hi: [0.50, 0.30, 0.10] },
+    { z: 0.66, hubX: 0.82, hubLo: 0.175, hubHi: 0.295, lo: [0.50, 0.19, 0.13], hi: [0.50, 0.30, 0.10] },
+    { z: -1.558, hubX: 0.78, hubLo: 0.31, hubHi: 0.42, lo: [0.20, 0.20, 0.16], hi: [0.19, 0.40, 0.12] },
   ];
   const group = new THREE.Group();
   group.userData.part = 'suspension';
@@ -635,15 +638,15 @@ function updateSuspension() {
   }
 }
 
-// 테일 핀 지지대: 에어로 모드에서 핀이 솟으면 받침과 핀 사이에 드러난다.
+// 테일 핀 지지대: 에어로 모드에서 핀 포드가 솟으면 리어 윙 끝과 포드 사이에 드러난다.
 const stalks = [];
 function buildFinStalks() {
   const geo = new THREE.BoxGeometry(0.03, 1, 0.06);
   geo.translate(0, 0.5, 0);
   for (const s of [1, -1]) {
-    for (const [x, z] of [[0.96, -1.45], [1.09, -2.10]]) {
+    for (const [x, z] of [[1.15, -1.55], [1.20, -2.05]]) {
       const m = new THREE.Mesh(geo, MATS.metal_dark);
-      m.position.set(s * x, 0.855, z);
+      m.position.set(s * x, 0.96, z);
       m.visible = false;
       m.castShadow = true;
       m.userData.part = 'tail_fins';
@@ -655,7 +658,7 @@ function buildFinStalks() {
   }
 }
 
-// 부스트 불꽃: 노즐마다 바깥 불꽃과 안쪽 코어 원뿔 두 겹 + 점광원
+// 부스트 불꽃: 노즐마다 바깥 불꽃·코어·넓은 플룸 세 겹 + 점광원, 뒤로 튀는 불티, 점화 순간의 충격파 고리
 const flames = [];
 const flameUniforms = { uTime: { value: 0 }, uPower: { value: 0 } };
 function flameMaterial(core, edge, diamonds, gain, fall) {
@@ -686,27 +689,160 @@ function flameMaterial(core, edge, diamonds, gain, fall) {
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, toneMapped: false,
   });
 }
+function radialTexture(size, stops) {
+  return canvasTexture(size, size, (c, w) => {
+    const g = c.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2);
+    for (const [at, color] of stops) g.addColorStop(at, color);
+    c.fillStyle = g;
+    c.fillRect(0, 0, w, w);
+  });
+}
 function buildFlames() {
-  const outerGeo = new THREE.ConeGeometry(0.15, 1, 32, 12, true);
-  outerGeo.translate(0, 0.5, 0).rotateX(-Math.PI / 2);
+  const cone = (r) => {
+    const g = new THREE.ConeGeometry(r, 1, 32, 12, true);
+    g.translate(0, 0.5, 0).rotateX(-Math.PI / 2);
+    return g;
+  };
+  const outerGeo = cone(0.14), plumeGeo = cone(0.26);
   const outerMat = flameMaterial(0x9fd2ff, 0x1f45d8, 0.0, 1.3, 0.9);
   const coreMat = flameMaterial(0xffffff, 0x8adcff, 1.0, 3.8, 1.5);
+  const plumeMat = flameMaterial(0x8fb4ff, 0x3b22d6, 0.0, 0.55, 2.4);
+  const sparkMat = new THREE.PointsMaterial({
+    size: 0.06, map: radialTexture(64, [[0, 'rgba(255,255,255,1)'], [0.35, 'rgba(255,255,255,0.55)'], [1, 'rgba(255,255,255,0)']]),
+    vertexColors: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false,
+  });
+  const ringTex = radialTexture(128, [[0, 'rgba(255,255,255,0)'], [0.62, 'rgba(255,255,255,0)'], [0.82, 'rgba(255,255,255,0.9)'], [1, 'rgba(255,255,255,0)']]);
+  const count = lowPower ? 70 : 160;
   for (const side of ['L', 'R']) {
     const piv = nodes[`piv_pod_${side}`];
     if (!piv) continue;
-    const exit = V(0, 0, -0.38); // 노즐 출구 (나셀 피벗 기준)
-    const outer = new THREE.Mesh(outerGeo, outerMat);
-    const core = new THREE.Mesh(outerGeo, coreMat);
-    outer.position.copy(exit); core.position.copy(exit);
-    outer.renderOrder = core.renderOrder = 20;
-    outer.layers.enable(BLOOM);
-    core.layers.enable(BLOOM);
-    const light = new THREE.PointLight(0x9cc8ff, 0, 3, 2);
-    light.position.set(0, 0, -0.75);
-    piv.add(outer, core, light);
-    outer.visible = core.visible = false;
-    flames.push({ outer, core, light, seed: side === 'L' ? 0 : 1.7 });
+    const exit = V(0, 0, -0.47); // 노즐 출구 (나셀 피벗 기준)
+    const [outer, core, plume] = [[outerGeo, outerMat], [outerGeo, coreMat], [plumeGeo, plumeMat]].map(([g, m]) => {
+      const mesh = new THREE.Mesh(g, m);
+      mesh.position.copy(exit);
+      mesh.renderOrder = 20;
+      mesh.layers.enable(BLOOM);
+      mesh.visible = false;
+      piv.add(mesh);
+      return mesh;
+    });
+    const light = new THREE.PointLight(0x9cc8ff, 0, 3.5, 2);
+    light.position.set(0, 0, -0.85);
+    piv.add(light);
+    // 불티: 고리 버퍼에 쌓아 오래된 것부터 다시 쓴다. 죽은 입자는 색을 0으로 두면 가산 합성에서 보이지 않는다.
+    const pos = new Float32Array(count * 3), col = new Float32Array(count * 3);
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3).setUsage(THREE.DynamicDrawUsage));
+    geo.setAttribute('color', new THREE.BufferAttribute(col, 3).setUsage(THREE.DynamicDrawUsage));
+    const points = new THREE.Points(geo, sparkMat);
+    points.frustumCulled = false;
+    points.renderOrder = 21;
+    points.layers.enable(BLOOM);
+    piv.add(points);
+    const ring = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({
+      map: ringTex, color: 0xa8d0ff, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide, toneMapped: false,
+    }));
+    ring.position.copy(exit);
+    ring.renderOrder = 22;
+    ring.layers.enable(BLOOM);
+    ring.visible = false;
+    piv.add(ring);
+    flames.push({
+      outer, core, plume, light, ring, exit, seed: side === 'L' ? 0 : 1.7, spinDir: side === 'L' ? 1 : -1,
+      sparks: { points, pos, col, vel: new Float32Array(count * 3), age: new Float32Array(count).fill(9), life: new Float32Array(count).fill(1), next: 0, acc: 0 },
+    });
   }
+}
+function updateSparks(sp, dt, rate) {
+  const n = sp.age.length;
+  sp.acc = Math.min(sp.acc + rate * dt, n);
+  while (sp.acc >= 1) {
+    sp.acc -= 1;
+    const i = sp.next, k = i * 3;
+    sp.next = (i + 1) % n;
+    const a = Math.random() * Math.PI * 2, r = Math.random() * 0.12, out = 0.4 + Math.random() * 1.4;
+    sp.pos[k] = Math.cos(a) * r; sp.pos[k + 1] = Math.sin(a) * r; sp.pos[k + 2] = -0.5;
+    sp.vel[k] = Math.cos(a) * out; sp.vel[k + 1] = Math.sin(a) * out + 0.3; sp.vel[k + 2] = -(4 + Math.random() * 2.5);
+    sp.age[i] = 0;
+    sp.life[i] = 0.2 + Math.random() * 0.25; // 노즐 뒤 3m 안에서 사라진다(후면 시점 카메라에 닿지 않게)
+  }
+  for (let i = 0; i < n; i++) {
+    const k = i * 3;
+    if (sp.age[i] >= sp.life[i]) { sp.col[k] = sp.col[k + 1] = sp.col[k + 2] = 0; continue; }
+    sp.age[i] += dt;
+    sp.vel[k + 1] -= 2.5 * dt; // 살짝 처지며 흩어진다
+    sp.pos[k] += sp.vel[k] * dt; sp.pos[k + 1] += sp.vel[k + 1] * dt; sp.pos[k + 2] += sp.vel[k + 2] * dt;
+    const t = Math.min(1, sp.age[i] / sp.life[i]), fade = (1 - t) * (1 - t);
+    sp.col[k] = (0.6 + 0.4 * (1 - t)) * fade * 1.6;
+    sp.col[k + 1] = (0.75 + 0.25 * (1 - t)) * fade * 1.8;
+    sp.col[k + 2] = fade * 2.4;
+  }
+  sp.points.geometry.attributes.position.needsUpdate = true;
+  sp.points.geometry.attributes.color.needsUpdate = true;
+}
+
+// 부스트 바닥 반사와 속도선: 노즐 뒤 바닥에 푸른 빛이 번지고, 차 옆과 위로 바람 줄이 뒤로 흐른다.
+const boostFx = { glow: null, streaks: null, items: [] };
+function buildBoostFx() {
+  const glowTex = canvasTexture(128, 256, (c, w, h) => {
+    const g = c.createRadialGradient(w / 2, h * 0.69, 0, w / 2, h * 0.69, h * 0.55);
+    g.addColorStop(0, 'rgba(130,180,255,0.9)');
+    g.addColorStop(1, 'rgba(60,90,255,0)');
+    c.fillStyle = g;
+    c.fillRect(0, 0, w, h);
+  });
+  // 바닥에 눕힌 판: 판의 +y가 차 뒤(−z)로 가므로 캔버스 아래쪽(앞쪽, 노즐 근처)에 빛의 중심을 둔다.
+  const glow = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 4.2), new THREE.MeshBasicMaterial({
+    map: glowTex, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false,
+  }));
+  glow.rotation.x = -Math.PI / 2;
+  glow.position.set(0, 0.006, -3.6);
+  glow.visible = false;
+  scene.add(glow);
+  const N = lowPower ? 18 : 36;
+  const geo = new THREE.CylinderGeometry(0.008, 0.008, 1, 6, 1, true);
+  geo.rotateX(Math.PI / 2); // 원기둥 축(y)을 차 길이 방향(z)으로
+  const vc = new Float32Array(geo.attributes.position.count * 3);
+  for (let i = 0; i < geo.attributes.position.count; i++) vc.fill(0.5 - geo.attributes.position.getZ(i), i * 3, i * 3 + 3); // 뒤(−z) 끝이 밝은 머리
+  geo.setAttribute('color', new THREE.BufferAttribute(vc, 3));
+  const streaks = new THREE.InstancedMesh(geo, new THREE.MeshBasicMaterial({
+    color: 0xa9c8ff, vertexColors: true, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending,
+    toneMapped: false, fog: false,
+  }), N);
+  streaks.frustumCulled = false;
+  streaks.layers.enable(BLOOM);
+  streaks.visible = false;
+  scene.add(streaks);
+  boostFx.glow = glow;
+  boostFx.streaks = streaks;
+  for (let i = 0; i < N; i++) boostFx.items.push(respawnStreak({}, true));
+}
+function respawnStreak(it, anywhere) {
+  const over = Math.random() < 0.25; // 넷에 하나는 차 위로 지나간다
+  const side = Math.random() < 0.5 ? -1 : 1;
+  it.x = over ? (Math.random() - 0.5) * 2.0 : side * (1.75 + Math.random() * 1.6);
+  it.y = over ? 1.75 + Math.random() * 0.7 : 0.08 + Math.random() * 1.5;
+  it.len = 0.7 + Math.random() * 1.2;
+  it.speed = 0.7 + Math.random() * 0.6;
+  it.z = anywhere ? -7 + Math.random() * 13 : 5.5 + Math.random() * 2; // 정면 프리셋 카메라(z 7.4)보다 뒤에서 나타난다
+  return it;
+}
+const _fxM = new THREE.Matrix4(), _fxQ = new THREE.Quaternion(), _fxP = new THREE.Vector3(), _fxS = new THREE.Vector3();
+function updateBoostFx(dt, power, flick) {
+  const { glow, streaks, items } = boostFx;
+  if (!glow) return;
+  glow.visible = power > 0.01;
+  glow.material.opacity = 0.85 * power * flick;
+  streaks.visible = !reduceMotion && power > 0.02;
+  if (!streaks.visible) return;
+  streaks.material.opacity = 0.6 * power;
+  items.forEach((it, i) => {
+    it.z -= it.speed * 26 * power * dt;
+    if (it.z < -8) respawnStreak(it, false);
+    streaks.setMatrixAt(i, _fxM.compose(_fxP.set(it.x, it.y, it.z), _fxQ, _fxS.set(1, 1, it.len * (0.4 + 0.6 * power))));
+  });
+  streaks.instanceMatrix.needsUpdate = true;
 }
 
 // 파츠 마커: 3D 위치를 화면에 투영해 버튼을 띄운다.
@@ -784,31 +920,30 @@ async function buildDecals() {
   const lift = nodes.chassis.position.y - base.chassis.pos.y; // 폰트를 기다리는 동안 모드가 바뀌었을 수 있다
   const BLUE = '#1c42c4';
   const font = (px) => `italic 800 ${px}px Saira, "Arial Narrow", Arial, sans-serif`;
-  // 프런트 카울 윗면: 평면도(x −1.05~1.05, L 1.50~2.46)를 캔버스에 그대로 옮겨 그린다. 캔버스 위쪽이 차의 뒤쪽이다.
-  const cowlArt = canvasTexture(1024, 468, (c, w, h) => {
-    const px = (x) => ((x + 1.05) / 2.1) * w;
-    const py = (L) => ((L - 1.50) / 0.96) * h;
+  // 프런트 카울 윗면: 평면도(x −1.0~1.0, L 1.55~2.35)를 캔버스에 그대로 옮겨 그린다. 캔버스 위쪽이 차의 뒤쪽이다.
+  // 줄무늬는 도면의 파란 띠(혼 안쪽 |x| 0.76, L 1.96~2.05에서 안쪽 앞 |x| 0.31, L 2.11~2.16으로 비스듬히)다.
+  const cowlArt = canvasTexture(1024, 410, (c, w, h) => {
+    const px = (x) => ((x + 1.0) / 2.0) * w;
+    const py = (L) => ((L - 1.55) / 0.80) * h;
     c.fillStyle = BLUE;
     for (const s of [1, -1]) {
-      for (const [l0, l1] of [[1.70, 1.77], [1.82, 1.88]]) {
-        c.beginPath();
-        c.moveTo(px(s * 0.18), py(l0));
-        c.lineTo(px(s * 0.18), py(l1));
-        c.lineTo(px(s * 0.95), py(l1 + 0.28));
-        c.lineTo(px(s * 0.95), py(l0 + 0.28));
-        c.closePath();
-        c.fill();
-      }
+      c.beginPath();
+      c.moveTo(px(s * 0.31), py(2.11));
+      c.lineTo(px(s * 0.31), py(2.164));
+      c.lineTo(px(s * 0.76), py(2.05));
+      c.lineTo(px(s * 0.76), py(1.96));
+      c.closePath();
+      c.fill();
     }
-    c.font = font(130);
+    c.font = font(110);
     c.textAlign = 'center';
     c.textBaseline = 'middle';
     c.lineWidth = 12;
     c.strokeStyle = '#ffffff';
-    c.strokeText('30', px(0.62), py(1.64));
-    c.fillText('30', px(0.62), py(1.64));
+    c.strokeText('30', px(0.58), py(1.78));
+    c.fillText('30', px(0.58), py(1.78));
   });
-  // 리어 바디 옆면(스폰슨 위로 드러난 파란 벽): 흰 ASURADA와 빨간 밑줄. 오른쪽은 글자를 오른쪽에 맞춘다.
+  // 나셀 페어링 옆면(스폰슨 위, 리어 윙 앞): 흰 ASURADA와 빨간 밑줄. 오른쪽은 글자를 오른쪽에 맞춘다.
   const sideArt = (mirror) => canvasTexture(1024, 232, (c, w, h) => {
     c.font = font(118);
     c.textBaseline = 'alphabetic';
@@ -826,18 +961,19 @@ async function buildDecals() {
     c.fillText('30', w / 2, w / 2 + 8);
   });
   const H = Math.PI / 2;
-  // 테일 핀은 Blender에서 토아웃 12°(수직축) 뒤 바깥 30°(길이축)로 돌렸다. 같은 순서로 투영 방향을 맞춘다.
-  const deg = THREE.MathUtils.degToRad;
-  const finRot = (s) => new THREE.Euler().setFromQuaternion(new THREE.Quaternion()
-    .setFromAxisAngle(V(0, 0, 1), -s * deg(30))
-    .multiply(new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), -s * deg(12)))
-    .multiply(new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), s * H)));
+  // 테일 핀 바깥 판은 위쪽이 안으로 기운 면(가로 위치 = 1.19 + (1.585 − 높이) / 2.88)이다. 투영기의 +z를 판의
+  // 바깥 법선에, +y를 판을 따라 올라가는 방향에 맞추면 글자가 앞에서 뒤로 읽힌다.
+  const finRot = (s) => {
+    const n = V(s * 2.88, 1, 0).normalize();
+    const up = V(-s, 2.88, 0).normalize();
+    return new THREE.Euler().setFromRotationMatrix(new THREE.Matrix4().makeBasis(new THREE.Vector3().crossVectors(up, n), up, n));
+  };
   const jobs = [
-    ['front_cowl', cowlArt, V(0, 0.64, 1.98), new THREE.Euler(-H, 0, 0), V(2.1, 0.96, 1.0)],
-    ['body', sideArt(false), V(0.62, 0.60, -1.0), new THREE.Euler(0, H, 0), V(0.80, 0.18, 0.5)],
-    ['body', sideArt(true), V(-0.62, 0.60, -1.0), new THREE.Euler(0, -H, 0), V(0.80, 0.18, 0.5)],
-    ['tailfin_L', finNum, V(1.28, 1.13, -1.86), finRot(1), V(0.34, 0.30, 0.16)],
-    ['tailfin_R', finNum, V(-1.28, 1.13, -1.86), finRot(-1), V(0.34, 0.30, 0.16)],
+    ['front_cowl', cowlArt, V(0, 0.40, 1.95), new THREE.Euler(-H, 0, 0), V(2.0, 0.80, 0.8)],
+    ['pod_fairing_L', sideArt(false), V(0.50, 0.62, -1.0), new THREE.Euler(0, H, 0), V(0.70, 0.16, 0.4)],
+    ['pod_fairing_R', sideArt(true), V(-0.50, 0.62, -1.0), new THREE.Euler(0, -H, 0), V(0.70, 0.16, 0.4)],
+    ['tailfin_L', finNum, V(1.36, 1.15, -1.85), finRot(1), V(0.30, 0.30, 0.16)],
+    ['tailfin_R', finNum, V(-1.36, 1.15, -1.85), finRot(-1), V(0.30, 0.30, 0.16)],
   ];
   for (const [name, tex, pos, rot, size] of jobs) {
     const target = nodes[name];
@@ -955,7 +1091,7 @@ function buildFloor() {
   });
   beltTex.wrapS = beltTex.wrapT = THREE.RepeatWrapping;
   beltTex.repeat.set(1, 9);
-  const belt = new THREE.Mesh(new THREE.PlaneGeometry(2.3, 9), new THREE.MeshStandardMaterial({ map: beltTex, roughness: 0.6, metalness: 0.2 }));
+  const belt = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 9), new THREE.MeshStandardMaterial({ map: beltTex, roughness: 0.6, metalness: 0.2 }));
   belt.rotation.x = -Math.PI / 2;
   belt.position.y = 0.002;
   belt.receiveShadow = true;
@@ -964,7 +1100,7 @@ function buildFloor() {
   for (const s of [1, -1]) {
     const edge = new THREE.Mesh(new THREE.PlaneGeometry(0.03, 9), edgeMat);
     edge.rotation.x = -Math.PI / 2;
-    edge.position.set(s * 1.165, 0.003, 0);
+    edge.position.set(s * 1.315, 0.003, 0);
     scene.add(edge);
   }
 
@@ -1384,6 +1520,7 @@ function setPos(name, axis, value) { const n = nodes[name]; if (n) n.position[ax
 
 const clock = new THREE.Clock();
 let elapsed = 0, screenAcc = 0;
+let kick = 0, lastBoost = 'idle'; // 점화 순간의 충격(1 → 0.6초에 걸쳐 0)
 const shake = new THREE.Vector3();
 function adaptQuality(rawDt) {
   if (pinnedHigh || document.hidden || quality.steps >= 3 || performance.now() < quality.armedAt) return;
@@ -1425,6 +1562,10 @@ renderer.setAnimationLoop(() => {
     anim.talk = Math.max(0, anim.talk - dt * (typing ? 0 : 0.8));
 
     setPos('chassis', 'y', anim.ride);
+    // 충전 중에는 약하게, 점화 뒤에는 강하게 차체가 떤다(움직임 줄이기 설정이면 끈다).
+    const rumble = reduceMotion ? 0 : Math.max(anim.power, anim.charge * 0.4) + kick;
+    nodes.chassis.position.y += (Math.random() - 0.5) * 0.004 * rumble;
+    setRot('chassis', 'z', (Math.random() - 0.5) * 0.004 * rumble);
     setRot('piv_canopy', 'x', anim.canopy);
     setRot('piv_airbrake_L', 'x', anim.airbrake);
     setRot('piv_airbrake_R', 'x', anim.airbrake);
@@ -1447,23 +1588,39 @@ renderer.setAnimationLoop(() => {
 
     updateSuspension();
 
-    // 부스트 연출
+    // 부스트 연출: 점화 순간 불꽃이 1.6배로 치솟고 충격파 고리가 퍼진 뒤, 떨리는 불꽃과 불티가 이어진다.
+    if (state.boost === 'on' && lastBoost !== 'on') kick = 1;
+    lastBoost = state.boost;
+    kick = Math.max(0, kick - dt / 0.6);
     flameUniforms.uTime.value = elapsed;
     flameUniforms.uPower.value = anim.power;
     const flick = 0.85 + 0.15 * Math.sin(elapsed * 41) * Math.sin(elapsed * 23);
     for (const f of flames) {
       const on = anim.power > 0.01;
-      f.outer.visible = f.core.visible = on;
-      const len = anim.power * (1.6 + 0.2 * Math.sin(elapsed * 29 + f.seed));
-      f.outer.scale.set(1, 1, Math.max(0.001, len));
+      f.outer.visible = f.core.visible = f.plume.visible = on;
+      const len = anim.power * (2.1 + 0.3 * Math.sin(elapsed * 29 + f.seed) + 0.15 * Math.sin(elapsed * 71 + 2 * f.seed)) * (1 + 0.6 * kick);
+      const girth = 1 + 0.25 * kick + 0.06 * Math.sin(elapsed * 53 + f.seed);
+      f.outer.scale.set(girth, girth, Math.max(0.001, len));
       f.core.scale.set(0.55, 0.55, Math.max(0.001, len * 0.62));
-      f.light.intensity = anim.power * 3 * flick;
+      f.plume.scale.set(girth, girth, Math.max(0.001, len * 0.45));
+      f.light.intensity = anim.power * (3 + 4 * kick) * flick;
+      updateSparks(f.sparks, dt, anim.power * (lowPower ? 140 : 320) + kick * 600 + (state.boost === 'charging' ? 40 * anim.charge : 0));
+      f.ring.visible = kick > 0.01;
+      if (f.ring.visible) {
+        const grow = 1 - kick;
+        f.ring.scale.setScalar(0.3 + 2.4 * grow);
+        f.ring.position.z = f.exit.z - 0.7 * grow;
+        f.ring.material.opacity = 0.9 * kick ** 1.5;
+      }
+      const blades = nodes[`boost_blades_${f.spinDir > 0 ? 'L' : 'R'}`];
+      if (blades) blades.rotation.z = (blades.rotation.z + f.spinDir * (anim.charge * 14 + anim.power * 46) * dt) % (Math.PI * 2); // 충전 때 돌기 시작해 점화 뒤 최고 회전
     }
+    updateBoostFx(dt, anim.power, flick);
     const glow = Math.max(anim.charge * 0.45, anim.power);
     MATS.glow_boost.color.setRGB(0.04 + 4.5 * glow * flick, 0.10 + 6.5 * glow * flick, 0.16 + 9.0 * glow * flick);
     const blink = state.boost === 'on' ? (Math.sin(elapsed * 22) > 0 ? 1 : 0.1) : 0.25;
     MATS.lamp_red.color.setRGB(0.35 + 7.0 * blink, 0.04, 0.04);
-    bloom.strength = 0.8 + 0.35 * anim.power;
+    bloom.strength = 0.8 + 0.35 * anim.power + 0.8 * kick;
     ui.boostMeter.style.strokeDashoffset = String(125.66 * (1 - Math.max(anim.charge, anim.power)));
 
     // 강조 오버레이(차체를 나눠 쓰는 파츠)
@@ -1500,7 +1657,7 @@ renderer.setAnimationLoop(() => {
   if (hoverEv && nodes.chassis) { setHover(pick(hoverEv), hoverEv); hoverEv = null; }
   updateMarkers();
 
-  const amp = reduceMotion ? 0 : 0.006 * anim.power;
+  const amp = reduceMotion ? 0 : 0.006 * anim.power + 0.02 * kick;
   shake.set((Math.random() - 0.5) * amp, (Math.random() - 0.5) * amp, (Math.random() - 0.5) * amp);
   camera.position.add(shake);
   renderFrame(anim.power > 0.01 || anim.charge > 0.01);

@@ -141,12 +141,12 @@ try {
     await click('#boost');
     await waitFor(`['cooling', 'idle'].includes(document.getElementById('boost').dataset.state)`, 3000, '부스트 끄기');
 
-    const label = await evaluate(`(() => { const m = document.querySelector('.marker[data-label="테일 핀 & 리어 펜더"]') || document.querySelector('.marker'); m.click(); return m.dataset.label; })()`);
+    const label = await evaluate(`(() => { const m = document.querySelector('.marker[data-label="테일 핀 & 리어 윙"]') || document.querySelector('.marker'); m.click(); return m.dataset.label; })()`);
     await waitFor(`!document.getElementById('card').hidden && document.getElementById('card-title').textContent === ${JSON.stringify(label)}`, 3000, '마커 → 설명 카드');
     await sleep(1500);
     await shot('04-card');
     await click('#card-next');
-    await waitFor(`document.getElementById('card-pos').textContent.startsWith(String(${JSON.stringify(label)} === '테일 핀 & 리어 펜더' ? 14 : 2))`, 3000, '다음 파츠');
+    await waitFor(`document.getElementById('card-pos').textContent.startsWith(String(${JSON.stringify(label)} === '테일 핀 & 리어 윙' ? 14 : 2))`, 3000, '다음 파츠');
     await evaluate(`window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })), true`);
     await waitFor(`document.getElementById('card').hidden`, 3000, 'Esc로 카드 닫기');
   }
