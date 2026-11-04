@@ -1,0 +1,346 @@
+<title>Super Asurada 01 Garage</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Saira:ital,wdth,wght@0,75..125,400..800;1,75..125,400..800&display=swap">
+<style>
+  /* 레이아웃: 화면 전체가 야간 풍동. 3D 캔버스 위에 계기판처럼 패널이 네 모서리에 떠 있다. */
+  :root {
+    color-scheme: dark;
+    --bg: #06080c;
+    --panel: rgba(10, 14, 22, 0.78);
+    --panel-solid: #0c111b;
+    --line: rgba(150, 178, 230, 0.16);
+    --line-strong: rgba(150, 178, 230, 0.34);
+    --fg: #e9eef7;
+    --muted: #8f9bb2;
+    --dim: #5d677b;
+    --blue: #5b84ff;
+    --blue-deep: #1c3fa8;
+    --red: #ff3d4a;
+    --amber: #f5c04a;
+    --cyan: #54e4ff;
+    --f-display: "Saira", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+    --f-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
+    --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+    --r: 10px;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--f-body); overflow: hidden; -webkit-font-smoothing: antialiased; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+
+  #stage { position: fixed; inset: 0; }
+  #stage canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+
+  .hud {
+    position: fixed; inset: 0; pointer-events: none;
+    padding-block: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-bottom, 0px));
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas: "brand views" "left deck" "console status";
+    gap: 14px 20px;
+  }
+  .hud > * { pointer-events: auto; min-width: 0; }
+
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  .eyebrow { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+
+  /* 브랜드 */
+  .brand { grid-area: brand; pointer-events: none; max-width: 520px; }
+  .brand .eyebrow { display: flex; gap: 10px; align-items: center; }
+  .brand .eyebrow i { width: 22px; height: 2px; background: var(--red); display: inline-block; }
+  .brand h1 {
+    margin: 6px 0 0; font-family: var(--f-display); font-style: italic; font-weight: 800; font-stretch: 112%;
+    font-size: clamp(30px, 4.6vw, 58px); line-height: 0.92; letter-spacing: -0.01em; text-wrap: balance;
+  }
+  .brand h1 span { color: var(--red); font-stretch: 100%; }
+  .brand p { margin: 10px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; max-width: 46ch; }
+
+  /* 카메라 뷰 */
+  .views { grid-area: views; align-self: start; justify-self: end; display: flex; gap: 4px; padding: 4px; flex-wrap: wrap; justify-content: flex-end; }
+  .views button {
+    border: 0; background: transparent; padding: 7px 11px; border-radius: 7px; cursor: pointer;
+    font-size: 13px; color: var(--muted); white-space: nowrap;
+  }
+  .views button:hover { color: var(--fg); background: rgba(255,255,255,0.05); }
+  .views button[aria-pressed="true"] { color: var(--fg); background: rgba(91,132,255,0.22); }
+  .views .sep { width: 1px; background: var(--line); margin: 4px 2px; }
+
+  /* 컨트롤 데크 */
+  .deck { grid-area: deck; align-self: center; justify-self: end; width: 300px; padding: 16px; display: grid; gap: 18px; }
+  .deck h2 { margin: 0 0 8px; font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.04em; }
+  .modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: rgba(0,0,0,0.25); padding: 4px; border-radius: 9px; }
+  .modes button {
+    border: 0; background: transparent; border-radius: 6px; padding: 8px 4px 7px; cursor: pointer; display: grid; gap: 2px; text-align: center;
+  }
+  .modes button b { font-size: 14px; font-weight: 600; }
+  .modes button small { font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 0.08em; color: var(--dim); text-transform: uppercase; }
+  .modes button:hover { background: rgba(255,255,255,0.05); }
+  .modes button[aria-pressed="true"] { background: var(--blue-deep); box-shadow: inset 0 0 0 1px rgba(150,180,255,0.35); }
+  .modes button[aria-pressed="true"] small { color: #c9d6ff; }
+  .mode-note { margin: 8px 2px 0; font-size: 12.5px; line-height: 1.55; color: var(--muted); min-height: 3.1em; }
+
+  .boost {
+    position: relative; width: 100%; border: 1px solid var(--line-strong); border-radius: 12px; padding: 14px 16px; cursor: pointer;
+    background: linear-gradient(180deg, rgba(255,61,74,0.10), rgba(255,61,74,0.02)); display: flex; align-items: center; gap: 14px; text-align: left;
+  }
+  .boost:hover { border-color: rgba(255,61,74,0.6); }
+  .boost svg { width: 46px; height: 46px; flex: none; transform: rotate(-90deg); }
+  .boost .track { stroke: rgba(255,255,255,0.1); }
+  .boost .meter { stroke: var(--red); stroke-linecap: round; transition: stroke-dashoffset 0.15s linear; }
+  .boost .label { display: grid; gap: 2px; }
+  .boost .label b { font-family: var(--f-display); font-style: italic; font-weight: 800; font-size: 26px; letter-spacing: 0.02em; line-height: 1; }
+  .boost .label span { font-size: 12.5px; color: var(--muted); }
+  .boost[data-state="charging"] { border-color: var(--amber); }
+  .boost[data-state="charging"] .meter { stroke: var(--amber); }
+  .boost[data-state="on"] { border-color: var(--red); background: linear-gradient(180deg, rgba(255,61,74,0.32), rgba(255,61,74,0.08)); box-shadow: 0 0 28px rgba(255,61,74,0.25); }
+  .boost[data-state="on"] .label b { color: #fff; }
+  .boost kbd, .switch kbd { margin-left: auto; }
+  kbd { font-family: var(--f-mono); font-size: 10.5px; color: var(--dim); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; }
+
+  .switches { display: grid; gap: 2px; }
+  .switch {
+    display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 4px; border: 0; background: transparent; cursor: pointer; text-align: left;
+    border-bottom: 1px solid var(--line);
+  }
+  .switch:last-child { border-bottom: 0; }
+  .switch .knob { width: 30px; height: 17px; border-radius: 9px; background: rgba(255,255,255,0.12); position: relative; flex: none; transition: background 0.2s; }
+  .switch .knob::after { content: ""; position: absolute; top: 2px; left: 2px; width: 13px; height: 13px; border-radius: 50%; background: var(--muted); transition: transform 0.2s, background 0.2s; }
+  .switch[aria-checked="true"] .knob { background: rgba(91,132,255,0.55); }
+  .switch[aria-checked="true"] .knob::after { transform: translateX(13px); background: #fff; }
+  .switch .txt { display: grid; gap: 1px; }
+  .switch .txt b { font-size: 14px; font-weight: 500; }
+  .switch .txt small { font-size: 12px; color: var(--muted); }
+
+  /* 파츠 설명 카드 */
+  .left { grid-area: left; align-self: end; display: flex; flex-direction: column; justify-content: flex-end; gap: 12px; min-height: 0; }
+  .card { width: min(380px, 100%); padding: 18px 18px 16px; display: grid; gap: 12px; max-height: 100%; overflow: auto; }
+  .card header { display: flex; align-items: flex-start; gap: 12px; }
+  .card .num { font-family: var(--f-display); font-style: italic; font-weight: 800; font-size: 30px; line-height: 1; color: var(--red); font-variant-numeric: tabular-nums; }
+  .card h3 { margin: 0; font-size: 20px; font-weight: 700; line-height: 1.25; text-wrap: balance; }
+  .card .en { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+  .card .close { margin-left: auto; border: 0; background: rgba(255,255,255,0.06); width: 30px; height: 30px; border-radius: 8px; cursor: pointer; font-size: 17px; line-height: 1; flex: none; }
+  .card .close:hover { background: rgba(255,255,255,0.12); }
+  .card p { margin: 0; font-size: 14px; line-height: 1.7; color: #cdd5e4; }
+  .card dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; padding-top: 10px; border-top: 1px solid var(--line); }
+  .card dt { font-size: 12px; color: var(--muted); }
+  .card dd { margin: 0; font-family: var(--f-mono); font-size: 12.5px; text-align: right; font-variant-numeric: tabular-nums; }
+  .card .actions { display: flex; flex-wrap: wrap; gap: 6px; }
+  .card .actions button {
+    border: 1px solid var(--line-strong); background: rgba(91,132,255,0.12); border-radius: 8px; padding: 7px 12px; cursor: pointer; font-size: 13px; font-weight: 500;
+  }
+  .card .actions button:hover { background: rgba(91,132,255,0.26); }
+  .card .nav { display: flex; align-items: center; gap: 6px; }
+  .card .nav button { border: 0; background: transparent; color: var(--muted); cursor: pointer; padding: 4px 6px; border-radius: 6px; font-size: 13px; }
+  .card .nav button:hover { color: var(--fg); background: rgba(255,255,255,0.06); }
+  .card .nav span { font-family: var(--f-mono); font-size: 11px; color: var(--dim); margin: 0 auto; }
+  .hint { width: min(380px, 100%); padding: 12px 14px; font-size: 13px; line-height: 1.55; color: var(--muted); }
+  .hint b { color: var(--fg); font-weight: 600; }
+
+  /* 아스라다 콘솔 */
+  .console { grid-area: console; align-self: end; width: min(420px, 100%); padding: 12px 14px; font-family: var(--f-mono); }
+  .console header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .console .eye { width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); animation: pulse 2.4s ease-in-out infinite; }
+  .console.talking .eye { animation-duration: 0.5s; }
+  .console ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 12.5px; line-height: 1.5; }
+  .console li { display: grid; grid-template-columns: 58px 1fr; gap: 8px; color: var(--muted); }
+  .console li:last-child { color: var(--fg); }
+  .console li time { color: var(--dim); font-variant-numeric: tabular-nums; }
+  .console li[data-tone="warn"] span { color: var(--amber); }
+  .console li[data-tone="boost"] span { color: #ff8a92; }
+  @keyframes pulse { 50% { opacity: 0.35; } }
+
+  /* 상태 칩 */
+  .status { grid-area: status; align-self: end; justify-self: end; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; max-width: 520px; }
+  .chip { display: grid; gap: 1px; padding: 7px 11px; min-width: 78px; }
+  .chip small { font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 0.12em; color: var(--dim); text-transform: uppercase; }
+  .chip b { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .chip[data-hot="true"] { border-color: rgba(255,61,74,0.55); }
+  .chip[data-hot="true"] b { color: #ff8a92; }
+  .credit { width: 100%; text-align: right; font-size: 11px; color: var(--dim); margin-top: 4px; }
+
+  /* 3D 위의 파츠 마커 */
+  #markers { position: fixed; inset: 0; pointer-events: none; }
+  .marker {
+    position: absolute; left: 0; top: 0; pointer-events: auto; cursor: pointer;
+    width: 24px; height: 24px; margin: -12px 0 0 -12px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.85);
+    background: rgba(8,12,20,0.7); color: #fff; font-family: var(--f-mono); font-size: 10.5px; font-weight: 500; padding: 0;
+    display: grid; place-items: center; transition: opacity 0.25s, background 0.2s, border-color 0.2s; will-change: transform;
+  }
+  .marker::after { content: attr(data-label); position: absolute; left: 30px; top: 50%; transform: translateY(-50%); white-space: nowrap; font-family: var(--f-body); font-size: 12.5px;
+    background: var(--panel-solid); border: 1px solid var(--line); padding: 4px 8px; border-radius: 6px; opacity: 0; pointer-events: none; transition: opacity 0.15s; }
+  .marker:hover::after, .marker:focus-visible::after { opacity: 1; }
+  .marker:hover { background: var(--blue-deep); }
+  .marker[data-active="true"] { background: var(--red); border-color: #fff; }
+  .marker[data-occluded="true"] { opacity: 0.32; }
+  #markers[hidden] { display: none; }
+
+  #tip { position: fixed; left: 0; top: 0; pointer-events: none; padding: 5px 9px; border-radius: 6px; font-size: 12.5px; background: var(--panel-solid); border: 1px solid var(--line); opacity: 0; transition: opacity 0.12s; white-space: nowrap; }
+
+  /* 로딩 */
+  #loader { position: fixed; inset: 0; display: grid; place-items: center; background: var(--bg); z-index: 5; transition: opacity 0.6s; }
+  #loader .box { width: min(320px, 80vw); display: grid; gap: 12px; }
+  #loader .bar { height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+  #loader .bar i { display: block; height: 100%; width: 0; background: var(--red); transition: width 0.2s; }
+  #loader p { margin: 0; font-size: 13px; color: var(--muted); }
+  #loader.done { opacity: 0; pointer-events: none; }
+  #loader.error p { color: var(--amber); }
+
+  .deck { max-height: 100%; overflow: auto; }
+  @media (min-width: 861px) and (max-height: 820px) {
+    .brand p, .mode-note, .switch .txt small, .hint { display: none; }
+    .deck { gap: 12px; padding: 12px 14px; }
+    .deck h2 { margin-bottom: 6px; }
+    .switch { padding: 6px 4px; }
+    .boost { padding: 10px 14px; }
+    .boost svg { width: 38px; height: 38px; }
+  }
+  @media (max-width: 860px) {
+    .hud {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+      grid-template-areas: "brand" "views" "left" "console" "deck";
+      gap: 10px;
+    }
+    .brand p { display: none; }
+    .brand h1 { font-size: 30px; }
+    .views { justify-self: stretch; justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+    .views::-webkit-scrollbar { display: none; }
+    .deck { justify-self: stretch; width: 100%; padding: 10px; gap: 10px; grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; }
+    .deck h2, .mode-note { display: none; }
+    .deck .group-boost { grid-row: span 1; }
+    .boost { padding: 8px 12px; gap: 10px; height: 100%; }
+    .boost svg { width: 34px; height: 34px; }
+    .boost .label b { font-size: 20px; }
+    .boost .label span, .boost kbd { display: none; }
+    .switches { grid-column: 1 / -1; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+    .switches::-webkit-scrollbar { display: none; }
+    .switch { border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; width: auto; flex: none; }
+    .switch:last-child { border-bottom: 1px solid var(--line); }
+    .switch .txt small, .switch kbd { display: none; }
+    .switch .txt b { font-size: 13px; white-space: nowrap; }
+    .console { width: 100%; padding: 8px 12px; }
+    .console header { display: none; }
+    .console li:not(:last-child) { display: none; }
+    .status { display: none; }
+    .hint { display: none; }
+    .card { width: 100%; max-height: 40vh; padding: 14px 14px 12px; gap: 10px; }
+    .card p { font-size: 13.5px; line-height: 1.6; }
+    .card .num { font-size: 24px; }
+    .card h3 { font-size: 17px; }
+    .hud.has-card .console { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .console .eye { animation: none; }
+    * { transition-duration: 0.01ms !important; }
+  }
+</style>
+
+<div id="stage" aria-label="Super Asurada 01 3D 모델. 드래그해서 돌리고, 파츠를 눌러 설명을 볼 수 있습니다."></div>
+<div id="markers" aria-label="파츠 마커"></div>
+<div id="tip" role="status" aria-live="polite"></div>
+
+<div class="hud">
+  <header class="brand">
+    <div class="eyebrow"><i></i>Cyber Formula · Fan Garage</div>
+    <h1>SUPER ASURADA <span>01</span></h1>
+    <p>파츠나 번호 마커를 누르면 설명이 나옵니다. 오른쪽 패널에서 모드를 바꾸고, 캐노피와 에어 브레이크를 열고, 부스트를 점화해 보세요.</p>
+  </header>
+
+  <nav class="views panel" aria-label="카메라 시점">
+    <button type="button" data-view="hero" aria-pressed="true">히어로</button>
+    <button type="button" data-view="side" aria-pressed="false">측면</button>
+    <button type="button" data-view="front" aria-pressed="false">정면</button>
+    <button type="button" data-view="rear" aria-pressed="false">후면</button>
+    <button type="button" data-view="top" aria-pressed="false">위</button>
+    <button type="button" data-view="low" aria-pressed="false">로우</button>
+    <span class="sep" aria-hidden="true"></span>
+    <button type="button" id="autorotate" aria-pressed="false">자동 회전</button>
+  </nav>
+
+  <section class="left" aria-live="polite">
+    <div class="hint panel" id="hint"><b>조작</b> · 드래그로 회전, 휠·핀치로 확대. 차체 아무 곳이나 눌러 보세요. 키보드: <kbd>B</kbd> 부스트 <kbd>C</kbd> 캐노피 <kbd>A</kbd> 에어 브레이크 <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 모드</div>
+    <article class="card panel" id="card" hidden>
+      <header>
+        <div class="num" id="card-num">01</div>
+        <div>
+          <h3 id="card-title">노즈 콘</h3>
+          <div class="en" id="card-en">Nose cone</div>
+        </div>
+        <button type="button" class="close" id="card-close" aria-label="설명 닫기">×</button>
+      </header>
+      <p id="card-desc"></p>
+      <dl id="card-facts"></dl>
+      <div class="actions" id="card-actions"></div>
+      <div class="nav">
+        <button type="button" id="card-prev">← 이전 파츠</button>
+        <span id="card-pos"></span>
+        <button type="button" id="card-next">다음 파츠 →</button>
+      </div>
+    </article>
+  </section>
+
+  <aside class="deck panel" aria-label="차량 조작">
+    <div>
+      <h2>주행 모드</h2>
+      <div class="modes" role="group" aria-label="주행 모드">
+        <button type="button" data-mode="circuit" aria-pressed="true"><b>서킷</b><small>Circuit</small></button>
+        <button type="button" data-mode="aero" aria-pressed="false"><b>에어로</b><small>Aero</small></button>
+        <button type="button" data-mode="rally" aria-pressed="false"><b>랠리</b><small>Rally</small></button>
+      </div>
+      <p class="mode-note" id="mode-note"></p>
+    </div>
+    <div class="group-boost">
+      <button type="button" class="boost" id="boost" data-state="idle" aria-pressed="false">
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <circle class="track" cx="24" cy="24" r="20" fill="none" stroke-width="4"/>
+          <circle class="meter" id="boost-meter" cx="24" cy="24" r="20" fill="none" stroke-width="4" stroke-dasharray="125.66" stroke-dashoffset="125.66"/>
+        </svg>
+        <span class="label"><b>BOOST</b><span id="boost-text">대기 중 · 눌러서 점화</span></span>
+        <kbd>B</kbd>
+      </button>
+    </div>
+    <div class="switches">
+      <button type="button" class="switch" role="switch" id="sw-canopy" aria-checked="false"><span class="knob"></span><span class="txt"><b>캐노피</b><small id="sw-canopy-sub">닫힘</small></span><kbd>C</kbd></button>
+      <button type="button" class="switch" role="switch" id="sw-airbrake" aria-checked="false"><span class="knob"></span><span class="txt"><b>에어 브레이크</b><small id="sw-airbrake-sub">접힘</small></span><kbd>A</kbd></button>
+      <button type="button" class="switch" role="switch" id="sw-markers" aria-checked="true"><span class="knob"></span><span class="txt"><b>파츠 마커</b><small>번호 표시</small></span><kbd>M</kbd></button>
+      <button type="button" class="switch" role="switch" id="sw-airflow" aria-checked="false"><span class="knob"></span><span class="txt"><b>기류 표시</b><small>풍동 스모크 라인</small></span><kbd>F</kbd></button>
+    </div>
+  </aside>
+
+  <section class="console panel" id="console" aria-label="아스라다 메시지">
+    <header><span class="eye" aria-hidden="true"></span><span class="eyebrow">ASURADA · Cyber System</span></header>
+    <ol id="console-log" aria-live="polite"></ol>
+  </section>
+
+  <footer class="status">
+    <div class="chip panel"><small>Mode</small><b id="st-mode">서킷</b></div>
+    <div class="chip panel"><small>Ride height</small><b id="st-ride">±0 mm</b></div>
+    <div class="chip panel"><small>Canopy</small><b id="st-canopy">닫힘</b></div>
+    <div class="chip panel" id="st-boost-chip"><small>Boost</small><b id="st-boost">대기</b></div>
+    <div class="credit">팬메이드 비공식 모델 · 원작 『신세기 GPX 사이버 포뮬러』의 권리는 원저작자에게 있습니다.</div>
+  </footer>
+</div>
+
+<div id="loader" role="status">
+  <div class="box">
+    <div class="eyebrow">ASURADA · System boot</div>
+    <div class="bar"><i id="loader-bar"></i></div>
+    <p id="loader-text">차체 데이터를 불러오는 중…</p>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module" src="app.js"></script>
