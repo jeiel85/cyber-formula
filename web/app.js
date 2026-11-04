@@ -286,6 +286,8 @@ function renderFrame(bloomOn) {
     const bg = scene.background;
     scene.background = null;
     bloomComposer.render();
+    // 정리 패스가 버퍼를 맞바꾸므로 블룸 결과는 렌더마다 두 타깃을 오간다. 매번 현재 읽기 버퍼를 합친다.
+    mixPass.uniforms.bloomTexture.value = bloomComposer.readBuffer.texture;
     scene.background = bg;
     for (const [o, m] of darkened) o.material = m;
     darkened.clear();
