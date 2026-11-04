@@ -94,7 +94,10 @@ try {
     if (m.method === 'Runtime.consoleAPICalled' && m.params.type === 'error') {
       problems.push(`console.error: ${m.params.args.map((a) => a.value ?? a.description).join(' ')}`);
     }
-    if (m.method === 'Log.entryAdded' && m.params.entry.level === 'error') problems.push(`로그: ${m.params.entry.text} ${m.params.entry.url || ''}`);
+    // 웹폰트는 대체 글꼴로 동작하므로 외부 폰트 로드 실패는 실패로 세지 않는다.
+    if (m.method === 'Log.entryAdded' && m.params.entry.level === 'error' && !/fonts\.(googleapis|gstatic)\.com/.test(m.params.entry.url || '')) {
+      problems.push(`로그: ${m.params.entry.text} ${m.params.entry.url || ''}`);
+    }
   };
   await send('Runtime.enable');
   await send('Log.enable');

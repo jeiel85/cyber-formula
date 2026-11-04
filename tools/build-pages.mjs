@@ -33,7 +33,9 @@ if (!fragment.includes(CDN)) {
 }
 
 const IMPORT_RE = /(?:import|export)\s+(?:[^'"]*?\sfrom\s+)?['"]([^'"]+)['"]|import\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
-const specifiers = (src) => [...src.matchAll(IMPORT_RE)].map((m) => m[1] || m[2]);
+// 주석 안의 import 예시를 의존으로 잡지 않도록 블록·줄 주석을 지우고 찾는다.
+const stripComments = (src) => src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+const specifiers = (src) => [...stripComments(src).matchAll(IMPORT_RE)].map((m) => m[1] || m[2]);
 
 function resolveSpecifier(spec, fromFile) {
   if (spec === 'three') return join(threeDir, 'build', 'three.module.js');

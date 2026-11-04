@@ -759,7 +759,7 @@ function updateMarkers() {
   });
   occIndex++;
   shown.sort((a, b) => (b === state.selected) - (a === state.selected)
-    || markers[a].occluded - markers[b].occluded || markers[a].depth - markers[b].depth);
+    || Number(Boolean(markers[a].occluded)) - Number(Boolean(markers[b].occluded)) || markers[a].depth - markers[b].depth);
   const kept = [];
   for (const id of shown) {
     const m = markers[id];
@@ -1387,8 +1387,9 @@ let elapsed = 0, screenAcc = 0;
 const shake = new THREE.Vector3();
 function adaptQuality(rawDt) {
   if (pinnedHigh || document.hidden || quality.steps >= 3 || performance.now() < quality.armedAt) return;
-  quality.ema += (Math.min(rawDt, 0.25) * 1000 - quality.ema) * 0.05;
-  quality.slow = quality.ema > 34 ? quality.slow + rawDt : Math.max(0, quality.slow - rawDt);
+  const step = Math.min(rawDt, 0.25); // 탭 전환 같은 긴 공백 한 번으로 단계가 내려가지 않게
+  quality.ema += (step * 1000 - quality.ema) * 0.05;
+  quality.slow = quality.ema > 34 ? quality.slow + step : Math.max(0, quality.slow - step);
   if (quality.slow > 3) {
     quality.ratio = Math.max(0.75, quality.ratio * 0.8);
     quality.steps++;
