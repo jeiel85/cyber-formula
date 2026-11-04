@@ -1,38 +1,60 @@
-name: Deploy to GitHub Pages
+name: Build, smoke test, deploy
 
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Build site
+        run: node tools/build-pages.mjs
+        env:
+          SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+      # 빌드 결과를 헤드리스 Chrome(소프트웨어 WebGL)으로 띄워 주요 기능을 눌러 보고, 첫 화면을 공유 미리보기로 저장한다.
+      - name: Smoke test and share image
+        run: |
+          node tools/serve.mjs --dist 8420 &
+          for i in $(seq 1 20); do curl -sf http://127.0.0.1:8420/ > /dev/null && break; sleep 0.5; done
+          node tools/smoke.mjs --url "http://127.0.0.1:8420/?quality=high" --chrome "$(command -v google-chrome)" \
+            --angle swiftshader --timeout 240000 --og dist/og.png --out smoke
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: smoke-screenshots
+          path: smoke
+          if-no-files-found: ignore
+      - if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - id: pages
-        uses: actions/configure-pages@v5
-      - name: Build site
-        run: node tools/build-pages.mjs
-        env:
-          SITE_URL: ${{ steps.pages.outputs.base_url }}
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
