@@ -22,7 +22,9 @@
     --cyan: #54e4ff;
     --f-display: "Saira", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
     --f-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
-    --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+    /* IBM Plex Mono에는 한글이 없다. 한글 글꼴이 없는 환경(CI의 리눅스 등)에서 콘솔·수치의 한글이 □로 깨지지 않게
+       본문용 IBM Plex Sans KR을 바로 다음 대체 글꼴로 둔다. */
+    --f-mono: "IBM Plex Mono", "IBM Plex Sans KR", ui-monospace, "SFMono-Regular", Consolas, monospace;
     --r: 10px;
   }
   *, *::before, *::after { box-sizing: border-box; }
