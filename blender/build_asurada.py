@@ -61,6 +61,7 @@ MATERIALS = {
     "paint_white": dict(color="#eef1f5", rough=0.3),
     "paint_red": dict(color="#d3202c", rough=0.3),
     "paint_yellow": dict(color="#f2c230", rough=0.3),
+    "paint_gray": dict(color="#7a808a", rough=0.4),
     "gold": dict(color="#c9a23a", rough=0.3, metal=1.0),
     "chrome": dict(color="#d8dde3", rough=0.12, metal=1.0),
     "carbon": dict(color="#17191d", rough=0.45),
@@ -467,9 +468,9 @@ def torus(center, R, r, tilt, seg=40, tseg=10):
     return verts, faces
 
 
-def conform_lens(poly_xL, lf, lift_top, lift_bot, flip=False):
-    """로프트 윗면을 따라 붙는 얇은 렌즈(헤드라이트 등). 윤곽은 체이킨으로 둥글린다."""
-    pts, _ = chaikin_closed(poly_xL, [False] * len(poly_xL), 3)
+def conform_lens(poly_xL, lf, lift_top, lift_bot, flip=False, sharp=None):
+    """로프트 윗면을 따라 붙는 얇은 렌즈(헤드라이트 등). 윤곽은 체이킨으로 둥글리되 sharp인 꼭짓점은 모서리로 남긴다."""
+    pts, _ = chaikin_closed(poly_xL, sharp or [False] * len(poly_xL), 3)
     n = len(pts)
     cx, cL = sum(p[0] for p in pts) / n, sum(p[1] for p in pts) / n
     ring_pts = pts + [(cx, cL)]
@@ -525,69 +526,67 @@ def curve_tube(pts, radius, closed=True):
 
 
 # ---------------------------------------------------------------- 치수표
-# 비율은 도장 설명서의 측면·평면·정면·후면도에서 잰 값이다(전장 약 4.9m로 환산).
-# 콕핏 구간은 캐노피를 품은 좁은 척추뿐이고 앞바퀴는 긴 암 끝에 멀리 나가 있다. 앞바퀴 뒤에서부터 폭이
-# 델타 모양으로 넓어져 뒤끝이 가장 넓고, 펜더가 뒷바퀴를 위에서 덮는다. 캐노피 꼭대기가 높은 리어 바디로
-# 이어지고, 테일 핀은 펜더 바깥 끝에서 30° 눕는다.
+# 치수는 도장 설명서의 측면·평면·정면·후면도에서 잰 값이다(blueprint.py가 뽑은 축척 0.0056m/px, 전장 약
+# 4.97m). 모델이 도면과 얼마나 겹치는지는 blueprint_check.py로 잰다.
+# 앞쪽은 낮은 쐐기 카울과 양 끝의 블레이드 혼, 가운데로 솟는 노즈 척추가 캐노피로 이어진다. 앞바퀴는 작고
+# 긴 암 끝에 멀리 나가 있다. 스폰슨은 앞바퀴 뒤에서 넓어지고, 큰 부스트 나셀 두 개가 리어 바디를 이룬다.
+# 나셀에서 15° 들린 리어 윙이 바깥 끝의 핀 포드로 이어지고, 테일 핀은 위쪽이 안으로 19° 기운 판이다.
 
 # 바퀴: 이름, L, |x|, 반지름 R, 폭 W, 파츠
 WHEELS = [
-    ("F1", 1.22, 0.92, 0.25, 0.30, "front_wheels"),
-    ("F2", 0.64, 0.92, 0.25, 0.30, "front_wheels"),
-    ("R", -1.72, 0.93, 0.335, 0.38, "rear_wheels"),
+    ("F1", 1.22, 0.955, 0.235, 0.39, "front_wheels"),
+    ("F2", 0.66, 0.955, 0.235, 0.39, "front_wheels"),
+    ("R", -1.558, 0.97, 0.375, 0.52, "rear_wheels"),
 ]
 
-# 척추(노즈~콕핏~리어 바디~꼬리). 오른쪽 절반 제어점: 아래 중앙, 아래 모서리*, 옆 최대폭, 숄더*, 덱 바깥, 덱 가운데, 위 중앙
+# 척추(노즈~콕핏~엔진 덮개~나셀 사이 꼬리). 오른쪽 절반 제어점: 아래 중앙, 아래 모서리*, 옆 최대폭, 숄더*,
+# 덱 바깥, 덱 가운데, 위 중앙. 노즈 끝은 카울 속에 낮게 묻히고 L 2.15부터 솟아 캐노피 앞끝으로 이어진다.
 TUB = SectionLoft([
-    (2.32, [(0, .110), (.010, .110), (.015, .118), (.015, .128), (.012, .133), (.006, .136), (0, .137)]),
-    (2.20, [(0, .095), (.050, .095), (.080, .130), (.085, .195), (.070, .235), (.035, .250), (0, .253)]),
-    (2.00, [(0, .095), (.110, .095), (.160, .170), (.170, .290), (.140, .345), (.070, .368), (0, .372)]),
-    (1.65, [(0, .110), (.180, .110), (.270, .210), (.290, .370), (.250, .440), (.125, .465), (0, .470)]),
-    (1.20, [(0, .100), (.240, .100), (.360, .210), (.380, .420), (.340, .500), (.170, .525), (0, .530)]),
-    (0.60, [(0, .100), (.260, .100), (.400, .210), (.420, .460), (.380, .550), (.190, .575), (0, .580)]),
-    (0.00, [(0, .100), (.260, .100), (.400, .220), (.420, .500), (.380, .620), (.190, .660), (0, .670)]),
-    (-0.45, [(0, .100), (.270, .100), (.420, .240), (.450, .620), (.400, .800), (.200, .860), (0, .870)]),
-    (-0.90, [(0, .110), (.270, .110), (.430, .260), (.460, .700), (.410, .880), (.200, .930), (0, .940)]),
-    (-1.50, [(0, .120), (.250, .120), (.400, .270), (.430, .700), (.380, .880), (.190, .930), (0, .940)]),
-    (-1.95, [(0, .150), (.200, .150), (.320, .270), (.340, .620), (.300, .780), (.150, .830), (0, .840)]),
-    (-2.20, [(0, .220), (.110, .220), (.180, .300), (.190, .550), (.160, .660), (.080, .700), (0, .710)]),
-    (-2.30, [(0, .400), (.020, .400), (.030, .420), (.030, .500), (.025, .520), (.012, .530), (0, .531)]),
+    (2.30, [(0, .090), (.010, .090), (.015, .095), (.015, .102), (.012, .106), (.006, .108), (0, .110)]),
+    (2.20, [(0, .090), (.060, .090), (.080, .110), (.080, .180), (.060, .210), (.030, .218), (0, .220)]),
+    (2.10, [(0, .090), (.120, .090), (.150, .150), (.150, .290), (.110, .335), (.055, .347), (0, .350)]),
+    (2.00, [(0, .090), (.160, .090), (.200, .160), (.200, .330), (.150, .372), (.075, .382), (0, .384)]),
+    (1.75, [(0, .090), (.240, .090), (.280, .170), (.280, .390), (.210, .432), (.105, .442), (0, .444)]),
+    (1.45, [(0, .065), (.360, .065), (.440, .190), (.450, .440), (.380, .482), (.190, .492), (0, .494)]),
+    (1.10, [(0, .065), (.380, .065), (.460, .200), (.470, .480), (.420, .535), (.210, .550), (0, .555)]),
+    (0.60, [(0, .065), (.380, .065), (.460, .200), (.470, .490), (.420, .555), (.220, .575), (0, .580)]),
+    (0.20, [(0, .065), (.360, .065), (.440, .200), (.450, .500), (.410, .565), (.220, .595), (0, .600)]),
+    (-0.10, [(0, .065), (.320, .065), (.400, .200), (.410, .520), (.370, .600), (.200, .640), (0, .650)]),
+    (-0.25, [(0, .065), (.300, .065), (.370, .200), (.380, .560), (.330, .660), (.170, .710), (0, .720)]),
+    (-0.40, [(0, .065), (.280, .065), (.340, .200), (.350, .690), (.300, .885), (.150, .950), (0, .965)]),
+    (-0.60, [(0, .070), (.260, .070), (.310, .200), (.300, .700), (.240, .860), (.120, .920), (0, .930)]),
+    (-0.80, [(0, .080), (.240, .080), (.280, .200), (.260, .660), (.180, .820), (.090, .870), (0, .880)]),
+    (-1.05, [(0, .100), (.220, .100), (.250, .220), (.220, .620), (.120, .760), (.060, .800), (0, .810)]),
+    (-1.30, [(0, .120), (.200, .120), (.220, .240), (.180, .600), (.070, .800), (.035, .840), (0, .850)]),
+    (-1.70, [(0, .140), (.180, .140), (.200, .260), (.140, .600), (.070, .840), (.035, .880), (0, .890)]),
+    (-2.05, [(0, .200), (.140, .200), (.150, .300), (.100, .600), (.070, .840), (.035, .880), (0, .890)]),
+    (-2.17, [(0, .400), (.030, .400), (.040, .450), (.040, .700), (.035, .800), (.020, .840), (0, .850)]),
 ], sharp=[False, True, False, True, False, False, False])
 
 
-def side_ctrl(xi, xo, zb, zt):
-    """스폰슨 단면(오른쪽, 닫힌 다각형): 안쪽 아래*, 바깥 아래*, 바깥 최대폭, 숄더*, 윗면 바깥, 윗면 안쪽, 안쪽 위*."""
-    w, h = xo - xi, zt - zb
-    return [(xi, zb), (xo - 0.15 * w, zb), (xo, zb + 0.28 * h), (xo - 0.04 * w, zt - 0.22 * h),
-            (xo - 0.30 * w, zt), (xi + 0.15 * w, zt + 0.02 * h), (xi, zt - 0.25 * h)]
+def side_ctrl(xi, xo, zb, zt, zo):
+    """스폰슨 단면(오른쪽, 닫힌 다각형): 안쪽 아래*, 바깥 아래*, 바깥 옆, 바깥 위*, 숄더, 윗면 안쪽, 안쪽 위*.
+    윗면은 |x| 0.8 언저리 숄더(zt)에서 가장 높고 바깥 끝(zo)으로 갈수록 낮아진다(정면도에서 뒷바퀴가 보이는 높이)."""
+    xs = max(xi + 0.03, xo - 0.16)
+    return [(xi, zb), (xo - 0.04, zb), (xo, zb + 0.6 * (zo - zb)), (xo - 0.01, zo),
+            (xs, zt), (xi + 0.08, zt + 0.004), (xi, zt - 0.04)]
 
 
-# 스폰슨: 앞바퀴 바로 뒤에서 좁게 시작해 뒤로 갈수록 넓어지는 낮은 델타
+# 스폰슨: 콕핏 옆 L 0.33에서 뾰족하게 시작해 L 0 언저리에서 |x| 0.95까지 벌어지고, 뒤끝은 뒷바퀴 앞에서 좁아진다.
 SIDE = SectionLoft([(L, side_ctrl(*v)) for L, v in [
-    (0.38, (0.34, 0.66, 0.12, 0.34)),
-    (0.25, (0.34, 0.80, 0.10, 0.38)),
-    (-0.20, (0.34, 1.05, 0.10, 0.42)),
-    (-0.70, (0.34, 1.30, 0.10, 0.46)),
-    (-1.00, (0.34, 1.42, 0.11, 0.48)),
-    (-1.18, (0.34, 1.22, 0.13, 0.47)),
-    (-1.32, (0.34, 1.05, 0.18, 0.44)),
+    (0.33, (0.30, 0.42, 0.31, 0.40, 0.37)),
+    (0.25, (0.30, 0.52, 0.30, 0.42, 0.36)),
+    (0.15, (0.30, 0.66, 0.28, 0.425, 0.35)),
+    (0.05, (0.30, 0.79, 0.24, 0.43, 0.33)),
+    (-0.05, (0.30, 0.905, 0.19, 0.44, 0.31)),
+    (-0.20, (0.30, 0.93, 0.15, 0.45, 0.30)),
+    (-0.40, (0.30, 0.945, 0.07, 0.46, 0.30)),
+    (-0.70, (0.30, 0.94, 0.065, 0.45, 0.30)),
+    (-0.85, (0.30, 0.88, 0.08, 0.44, 0.30)),
+    (-1.00, (0.30, 0.795, 0.11, 0.42, 0.30)),
+    (-1.10, (0.30, 0.74, 0.14, 0.41, 0.30)),
+    (-1.14, (0.30, 0.62, 0.17, 0.40, 0.30)),
 ]], sharp=[True, True, False, True, False, False, True], mirror=False)
-
-
-def fender_ctrl(xi, xo, zb, zt):
-    """리어 펜더 단면(오른쪽, 얇은 날개): 안쪽 아래, 바깥 아래*, 바깥 끝, 바깥 위*, 안쪽 위, 안쪽 가운데."""
-    zm = (zb + zt) / 2
-    return [(xi, zb), (xo - 0.05, zb), (xo, zm), (xo - 0.05, zt), (xi + 0.05, zt), (xi, zm)]
-
-
-# 리어 펜더: 뒷바퀴를 위에서 덮고 바깥 끝에 테일 핀을 받친다(바퀴 꼭대기 0.67, 에어로 모드 −20mm까지 여유).
-FENDER = SectionLoft([(L, fender_ctrl(*v)) for L, v in [
-    (-1.10, (0.40, 1.00, 0.73, 0.76)),
-    (-1.24, (0.40, 1.18, 0.71, 0.80)),
-    (-2.05, (0.40, 1.22, 0.71, 0.80)),
-    (-2.25, (0.40, 1.14, 0.72, 0.79)),
-    (-2.32, (0.40, 1.02, 0.74, 0.77)),
-]], sharp=[False, True, False, True, False, False], mirror=False, iters=2)
 
 
 def cowl_ctrl(w, zb, zte, ztc):
@@ -595,71 +594,142 @@ def cowl_ctrl(w, zb, zte, ztc):
     return [(0, zb), (w * 0.96, zb), (w, (zb + zte) / 2), (w * 0.96, zte), (w * 0.5, zte + (ztc - zte) * 0.75), (0, ztc)]
 
 
+# 프런트 카울: 앞전은 가운데(L 2.32)가 가장 앞선 깊은 V, 윗면은 앞전 높이 0.1에서 뒷전 0.33까지 오르는 쐐기.
 COWL = SectionLoft([(L, cowl_ctrl(*v)) for L, v in [
-    (2.44, (0.03, 0.030, 0.045, 0.050)),
-    (2.30, (0.30, 0.035, 0.070, 0.110)),
-    (2.15, (0.62, 0.040, 0.100, 0.170)),
-    (2.00, (0.88, 0.045, 0.130, 0.230)),
-    (1.85, (1.00, 0.050, 0.155, 0.280)),
-    (1.62, (1.00, 0.060, 0.180, 0.330)),
-    (1.52, (0.96, 0.070, 0.190, 0.340)),
+    (2.32, (0.030, 0.072, 0.090, 0.100)),
+    (2.29, (0.120, 0.071, 0.094, 0.115)),
+    (2.25, (0.216, 0.070, 0.100, 0.135)),
+    (2.20, (0.272, 0.070, 0.110, 0.155)),
+    (2.15, (0.361, 0.070, 0.122, 0.175)),
+    (2.10, (0.524, 0.070, 0.140, 0.200)),
+    (2.05, (0.686, 0.070, 0.160, 0.220)),
+    (2.00, (0.880, 0.070, 0.180, 0.240)),
+    (1.85, (0.920, 0.070, 0.230, 0.280)),
+    (1.70, (0.920, 0.070, 0.280, 0.310)),
+    (1.62, (0.910, 0.072, 0.300, 0.325)),
 ]], sharp=[False, True, False, True, False, False])
 
 
-def horn_ctrl(xc, zl, zh, t, lean=8.0):
-    """블레이드 혼 단면(얇은 렌즈, 바깥으로 기움): 아래*, 바깥, 위*, 안쪽."""
-    k = math.tan(math.radians(lean))
-    zm = (zl + zh) / 2
-    return [(xc, zl), (xc + t / 2 + (zm - zl) * k, zm), (xc + (zh - zl) * k, zh), (xc - t / 2 + (zm - zl) * k, zm)]
+def horn_ctrl(xi, xo, zb, zs, zc):
+    """블레이드 혼 단면(오른쪽): 안쪽 아래*, 바깥 아래*, 바깥 위*, 마루, 안쪽 위*. 옆면은 파랑, 마루는 흰색."""
+    return [(xi, zb), (xo, zb), (xo, zs), ((xi + xo) / 2, zc), (xi, zs)]
 
 
+# 블레이드 혼: L 2.50 끝에서 뒤로 넓어져 밑동 |x| 0.85~1.13(맨 뒤는 카울 뒷전 바깥까지 0.76). 옆면 높이 0.25, 마루 0.35.
 HORN = SectionLoft([(L, horn_ctrl(*v)) for L, v in [
-    (2.50, (0.920, 0.110, 0.125, 0.006)),
-    (2.40, (0.990, 0.070, 0.210, 0.020)),
-    (2.24, (1.030, 0.045, 0.290, 0.030)),
-    (2.08, (1.050, 0.035, 0.340, 0.036)),
-    (1.88, (1.055, 0.035, 0.365, 0.038)),
-    (1.70, (1.055, 0.045, 0.350, 0.034)),
-    (1.62, (1.055, 0.080, 0.300, 0.010)),
-]], sharp=[True, False, True, False], mirror=False)
+    (2.50, (0.960, 0.994, 0.066, 0.085, 0.092)),
+    (2.45, (0.938, 1.011, 0.061, 0.100, 0.108)),
+    (2.40, (0.921, 1.033, 0.058, 0.115, 0.128)),
+    (2.30, (0.899, 1.056, 0.056, 0.165, 0.185)),
+    (2.20, (0.876, 1.072, 0.056, 0.210, 0.245)),
+    (2.10, (0.860, 1.089, 0.056, 0.245, 0.300)),
+    (2.00, (0.850, 1.100, 0.056, 0.250, 0.340)),
+    (1.80, (0.850, 1.123, 0.056, 0.250, 0.350)),
+    (1.60, (0.850, 1.128, 0.056, 0.250, 0.350)),
+    (1.56, (0.780, 1.120, 0.058, 0.245, 0.330)),
+    (1.50, (0.760, 0.930, 0.070, 0.200, 0.250)),
+]], sharp=[True, True, True, False, True], mirror=False)
 
-# 캐노피: (L, 반폭, 꼭대기 높이). 꼭대기가 뒤로 갈수록 올라가 리어 바디 윗면으로 이어진다.
-CANOPY = [(1.66, 0.020, 0.0), (1.50, 0.130, 0.50), (1.15, 0.250, 0.64), (0.70, 0.320, 0.76), (0.25, 0.350, 0.86),
-          (-0.10, 0.340, 0.92), (-0.25, 0.280, 0.92), (-0.33, 0.160, 0.89), (-0.37, 0.030, 0.0)]
+# 캐노피 유리: (L, 반폭, 꼭대기 높이). 앞끝 L 1.25에서 뾰족하게 시작해 L 0에서 반폭 0.35로 가장 넓다.
+CANOPY = [(1.25, 0.020, 0.0), (1.20, 0.100, 0.552), (1.10, 0.140, 0.580), (1.00, 0.160, 0.610), (0.80, 0.200, 0.668),
+          (0.60, 0.240, 0.728), (0.40, 0.280, 0.772), (0.30, 0.330, 0.785), (0.15, 0.345, 0.790), (0.00, 0.350, 0.792),
+          (-0.10, 0.330, 0.795), (-0.20, 0.280, 0.800), (-0.27, 0.150, 0.800), (-0.31, 0.030, 0.0)]
+# 캐노피 지붕: 유리 위 가운데의 흰 마루(평면도의 흰 띠). 뒤로 갈수록 높아져 측면 실루엣 꼭대기(1.0)가 된다.
+ROOF = [(0.38, 0.020, 0.785), (0.30, 0.060, 0.800), (0.20, 0.100, 0.843), (0.00, 0.120, 0.904), (-0.15, 0.130, 0.945),
+        (-0.25, 0.120, 0.985), (-0.32, 0.080, 1.005), (-0.40, 0.030, 0.985)]
 
-POD_X, POD_Z = 0.235, 0.72
-ENGINE_BAY = (-0.55, -1.45)  # 엔진룸 앞뒤 L
-BAY_FLOOR, CAP_Z, BAY_HALF = 0.40, 0.80, 0.28
+# 부스트 나셀: 축(|x|, z)과 파란 페어링(L, 반지름, 축 높이). 페어링은 L −0.30에서 뾰족하게 시작한다.
+NACELLE_X, NACELLE_Z = 0.335, 0.70
+NACELLE = [(-0.30, 0.010, 0.640), (-0.36, 0.050, 0.645), (-0.45, 0.090, 0.650), (-0.60, 0.130, 0.660),
+           (-0.80, 0.170, 0.675), (-1.00, 0.200, 0.688), (-1.20, 0.225, 0.695), (-1.45, 0.248, 0.700),
+           (-1.65, 0.260, 0.700), (-1.83, 0.265, 0.700)]
+ENGINE_BAY = (-0.62, -1.40)  # 엔진룸 앞뒤 L
+# 엔진은 두 나셀 페어링 사이의 V자 틈(z 0.7에서 |x| 0.10~0.20) 바로 아래까지 올려 덮개를 열면 위에서 보이게 한다.
+BAY_FLOOR, CAP_Z, BAY_HALF = 0.47, 0.76, 0.20
+ENGINE_W = 0.72  # V형 엔진 가로 축척(페어링 사이 틈에 맞춘다)
+
+# 리어 윙: (|x|, 앞전 L, 뒷전 L, 가운데 높이, 두께). 나셀 안쪽 뿌리에서 핀 포드 속 끝까지 15° 들린다.
+REAR_WING = [(0.45, -1.15, -1.96, 0.800, 0.15), (1.12, -1.26, -2.22, 1.010, 0.10)]
+
+
+def blade_x(z):
+    """테일 핀 바깥 판의 가로 위치(정면·후면도 띠의 가운데: z 1.585에서 |x| 1.19, z 0.42에서 1.6). 위쪽이 안으로 19° 기운다."""
+    return 1.19 + (1.585 - z) / 2.88
+
+
+def strip_x(z):
+    """핀 안쪽 판(포드 위로 솟은 얇은 판)의 가로 위치. 위쪽이 안으로 13° 기운다."""
+    return 0.99 - (z - 1.30) * 0.229
+
+
+# 테일 핀 바깥 판의 옆모습(L, z): 파란 몸판과 뒷전의 노란 띠. 앞쪽 아랫변(z 1.01)은 핀 포드 바깥 벽에 붙는다.
+FIN_BLUE = [(-1.27, 1.01), (-1.30, 1.04), (-1.40, 1.14), (-1.50, 1.196), (-1.60, 1.229), (-1.70, 1.257),
+            (-1.80, 1.347), (-1.90, 1.487), (-1.97, 1.555), (-2.06, 1.600), (-2.14, 1.00), (-2.20, 0.55),
+            (-2.215, 0.495), (-2.20, 0.49), (-2.15, 0.45), (-2.10, 0.457), (-2.05, 0.52), (-2.00, 0.584),
+            (-1.95, 0.65), (-1.90, 0.73), (-1.85, 0.811), (-1.80, 0.875), (-1.75, 0.956), (-1.71, 1.01)]
+FIN_YELLOW = [(-2.06, 1.600), (-2.13, 1.604), (-2.25, 1.43), (-2.37, 1.24), (-2.36, 0.94), (-2.33, 0.62),
+              (-2.25, 0.54), (-2.215, 0.495), (-2.20, 0.55), (-2.14, 1.00)]
+FIN_STRIP = [(-1.72, 1.25), (-1.80, 1.35), (-1.90, 1.47), (-1.98, 1.53), (-2.12, 1.53), (-2.17, 1.42), (-2.17, 1.25)]
+
+
+def pod_ctrl(xi, zb, zt, xo=None, zbo=1.01):
+    """핀 포드 단면(오른쪽): 안쪽 아래, 바깥 아래, 바깥 위, 안쪽 위, 안쪽 어깨(모두 모서리). 바깥 벽은 핀 판 바로
+    안쪽이고, 바닥은 리어 윙처럼 바깥으로 갈수록 올라간다(정면도 0.93 → 1.01). 안쪽 벽은 수직이고 윗모서리만
+    안으로 0.06 들어 평면도의 노란 윗면 안쪽 끝(|x| 0.99)에 맞춘다."""
+    xb = xo if xo is not None else blade_x(zbo) - 0.012
+    xt = xo if xo is not None else blade_x(zt) - 0.012
+    k = min(0.08, (zt - zb) * 0.4)
+    return [(xi, zb), (xb, zbo), (xt, zt), (xi - 0.06, zt), (xi, zt - k)]
+
+
+# 핀 포드: 리어 윙 끝을 감싸는 상자. 윗변이 측면도의 오목한 어깨선(L −1.25에서 1.0 → L −2.0에서 1.38)이다.
+POD = SectionLoft([(L, pod_ctrl(*v)) for L, v in [
+    (-1.23, (1.27, 0.950, 0.970, 1.32, 0.950)),
+    (-1.30, (1.060, 0.950, 1.040)),
+    (-1.40, (1.055, 0.940, 1.140)),
+    (-1.50, (1.050, 0.935, 1.196)),
+    (-1.70, (1.050, 0.930, 1.257)),
+    (-1.85, (1.050, 0.930, 1.320)),
+    (-2.00, (1.050, 0.930, 1.380)),
+    (-2.15, (1.030, 0.930, 1.380)),
+    (-2.27, (1.030, 0.930, 1.360)),
+    (-2.31, (1.040, 0.950, 1.300)),
+]], sharp=[True, True, True, True, True], mirror=False, iters=1)
 
 
 # ---------------------------------------------------------------- 파츠
 
-BLUE, WHITE, RED, CARBON, YELLOW = 0, 1, 2, 3, 4
-PAINT = ["paint_blue", "paint_white", "paint_red", "carbon", "paint_yellow"]
+BLUE, WHITE, RED, CARBON, YELLOW, GRAY = 0, 1, 2, 3, 4, 5
+PAINT = ["paint_blue", "paint_white", "paint_red", "carbon", "paint_yellow", "paint_gray"]
 
 
 def tub_mat(x, L, z, p=None):
     """패널: 0 오른쪽 옆면, 1 윗면, 2 왼쪽 옆면, 3 바닥, -1 끝 뚜껑.
-    도면처럼 노즈 윗면과 캐노피 둘레는 흰색, 리어 바디와 옆면은 파랑."""
+    도면처럼 노즈·콕핏 둘레·엔진 덮개는 흰색, 나셀 사이의 꼬리는 파랑이고 끝 윗면은 노랑이다.
+    앞바퀴 사이 옆면은 z 0.33 아래가 회색 섀시다(측면도에서 흰 몸판 아래로 서스펜션이 붙는 부분)."""
     if p == 3:
         return CARBON
-    if p == 1:
-        return WHITE if L > -0.42 else BLUE
-    if p in (0, 2, -1):
-        return BLUE
-    return BLUE if z > 0.45 else WHITE
+    if L < -1.25:
+        return YELLOW if p == 1 and L < -1.95 else BLUE
+    if p in (0, 2) and z < 0.33 and 0.20 < L < 1.58:
+        return GRAY
+    return WHITE
+
+
+# 콕핏 욕조: 캐노피 발자국 안쪽(L −0.15~0.85, |x| 0.20)
+COCKPIT = ((0, 0.35, 0.80), (0.40, 1.00, 1.04))
 
 
 def build_tub():
-    tub = add_mesh("body", TUB.geo(96), PAINT, part="body", face_mat=tub_mat, sharp=40)
+    tub = add_mesh("body", TUB.geo(110), PAINT, part="body", face_mat=tub_mat, sharp=40)
 
     # 콕핏: 둥근 상자를 빼서 시트가 들어갈 욕조 모양을 만든다(캐노피 밑단 안쪽).
-    cockpit = add_mesh("cut_cockpit", box((0, 0.44, 0.80), (0.54, 1.12, 1.04), bevel=0.10, segments=4),
-                       [], parent=None, smooth=False)
+    cockpit = add_mesh("cut_cockpit", box(*COCKPIT, bevel=0.10, segments=4), [], parent=None, smooth=False)
     boolean(tub, cockpit, "DIFFERENCE")
     bpy.data.objects.remove(cockpit)
+    (cx, cL, _), (sx, sL, _) = COCKPIT
 
-    # 엔진룸: 리어 바디 윗면에서 덮개 캡(교집합)을 먼저 떼어 내고, 차체에서는 엔진룸 상자를 빼낸다.
+    # 엔진룸: 엔진 덮개 윗면에서 덮개 캡(교집합)을 먼저 떼어 내고, 차체에서는 엔진룸 상자를 빼낸다.
     L1, L0 = ENGINE_BAY
     Lc, Ln = (L1 + L0) / 2, L1 - L0
     bay_geo = box((0, Lc, (BAY_FLOOR + 1.6) / 2), (2 * BAY_HALF, Ln, 1.6 - BAY_FLOOR), bevel=0.07, segments=3)
@@ -673,7 +743,7 @@ def build_tub():
     bpy.data.objects.remove(cutter)
 
     def tub_mat_cut(x, L, z, p=None):
-        if abs(x) < 0.275 and -0.13 < L < 1.01 and z < TUB.top(L, x) - 0.015:
+        if abs(x) < sx / 2 + 0.005 and cL - sL / 2 - 0.01 < L < cL + sL / 2 + 0.01 and z < TUB.top(L, x) - 0.015:
             return CARBON  # 콕핏 안쪽
         if abs(x) < BAY_HALF + 0.01 and L0 - 0.01 < L < L1 + 0.01 and z < CAP_Z:
             return CARBON  # 엔진룸 벽
@@ -689,26 +759,30 @@ def build_tub():
     finish(me, lambda x, L, z, p=None: CARBON if z < CAP_Z + 0.03 else tub_mat(x, L, z, p), sharp=40)
     rebase(cover, "piv_engine_cover")
 
+    # 콕핏 뒤 지붕 끝의 빨간 상자(측면도의 빨간 블록). 엔진 덮개 힌지보다 앞에 둔다.
+    add_mesh("roll_light", box((0, -0.525, 0.945), (0.13, 0.12, 0.12), bevel=0.025), ["paint_red"], part="cockpit", sharp=45)
+
 
 def build_engine():
     """엔진룸 안의 V형 엔진: 블록, 좌우 뱅크, 금색 캠 커버, 흡기 트럼펫, 은색 배기 헤더."""
     L1, L0 = ENGINE_BAY
-    Lc, length = (L1 + L0) / 2, (L1 - L0) - 0.12
+    Lc, length = (L1 + L0) / 2, (L1 - L0) - 0.22
     z0 = BAY_FLOOR + 0.075  # 블록 중심
-    parts = [box((0, Lc, z0), (0.26, length, 0.12), bevel=0.02)]
+    w = ENGINE_W
+    parts = [box((0, Lc, z0), (0.26 * w, length, 0.12), bevel=0.02)]
     gold, chrome = [], []
     up = Matrix.Rotation(math.radians(-90), 4, "Y")  # 회전체의 +x 축을 위(+z)로
     for s in (1, -1):
-        parts.append(box((s * 0.09, Lc, z0 + 0.07), (0.10, length - 0.04, 0.10), bevel=0.015, roll=s * 32))
-        gold.append(box((s * 0.118, Lc, z0 + 0.115), (0.07, length - 0.08, 0.03), bevel=0.011, roll=s * 32))
+        parts.append(box((s * 0.09 * w, Lc, z0 + 0.07), (0.10 * w, length - 0.04, 0.10), bevel=0.015, roll=s * 32))
+        gold.append(box((s * 0.118 * w, Lc, z0 + 0.115), (0.07 * w, length - 0.08, 0.03), bevel=0.011, roll=s * 32))
         for k in range(7):
             Lk = L1 - 0.10 - k * (length - 0.16) / 6
-            chrome.append(box((s * 0.122, Lk, z0 + 0.133), (0.074, 0.012, 0.010), bevel=0.003, roll=s * 32))
+            chrome.append(box((s * 0.122 * w, Lk, z0 + 0.133), (0.074 * w, 0.012, 0.010), bevel=0.003, roll=s * 32))
         for k in range(6):
             Lk = L1 - 0.13 - k * (length - 0.22) / 5
             chrome.append(transform_geo(revolve([(0.0, 0.010), (0.07, 0.017), (0.07, 0.013), (0.0, 0.007)],
                                                 (0, 0, 0), "X", seg=12),
-                                        Matrix.Translation(P(s * 0.032, Lk, z0 + 0.085)) @ up))
+                                        Matrix.Translation(P(s * 0.032 * w, Lk, z0 + 0.085)) @ up))
     add_mesh("engine_block", merge(*parts), ["metal_dark"], part="engine", sharp=45)
     add_mesh("engine_cams", merge(*gold), ["gold"], part="engine", sharp=45)
     add_mesh("engine_trumpets", merge(*chrome), ["chrome"], part="engine", sharp=50)
@@ -720,13 +794,13 @@ def build_engine():
         s = -1 if i < 3 else 1
         k = i % 3
         Lh = L1 - 0.18 - k * 0.24
-        ctrl = [P(s * 0.16, Lh, z0 + 0.05), P(s * 0.20, Lh - 0.06, z0 + 0.0),
+        ctrl = [P(s * 0.16 * w, Lh, z0 + 0.05), P(s * 0.20 * w, Lh - 0.06, z0 + 0.0),
                 P(s * (0.17 - 0.035 * k), L0 + 0.05, BAY_FLOOR - 0.04 - 0.035 * k),
-                P(ex, -1.90, ez), P(ex, -2.20, ez)]
+                P(ex, -1.90, ez), P(ex, -2.15, ez)]
         pipes.append(curve_tube(catmull(ctrl, per=8), 0.021, closed=False))
-        pipes.append(revolve([(-2.17, 0.030), (-2.33, 0.031), (-2.33, 0.024), (-2.17, 0.023)], (ex, ez), "L", seg=24))
+        pipes.append(revolve([(-2.12, 0.030), (-2.25, 0.031), (-2.25, 0.024), (-2.12, 0.023)], (ex, ez), "L", seg=24))
     add_mesh("exhaust", merge(*pipes), ["chrome"], part="engine", sharp=50)
-    add_mesh("exhaust_dark", merge(*[revolve([(-2.22, 0.0), (-2.22, 0.024), (-2.24, 0.024), (-2.24, 0.0)],
+    add_mesh("exhaust_dark", merge(*[revolve([(-2.22, 0.0), (-2.22, 0.024), (-2.235, 0.024), (-2.235, 0.0)],
                                              (ex, ez), "L", seg=16) for ex, ez in exits]),
              ["intake"], part="engine", smooth=False)
 
@@ -735,12 +809,10 @@ def build_sides():
     L_front = SIDE.Ls[-1]
     for side, s in (("L", 1), ("R", -1)):
         def side_mat(x, L, z, p=None):
-            """패널: 0 바닥, 1 바깥 옆면, 2 윗면, 3 안쪽, -1 앞뒤 뚜껑. 윗면 뒷전은 노랑."""
+            """패널: 0 바닥, 1 바깥 옆면, 2 윗면, 3 안쪽, -1 앞뒤 뚜껑."""
             if p == 0:
                 return CARBON
-            if p == 2:
-                return YELLOW if -1.20 < L < -1.02 else (RED if L > 0.28 else BLUE)
-            return BLUE if p == 1 else WHITE
+            return WHITE if p == 3 else BLUE
         add_mesh(f"sidepod_{side}", SIDE.geo(44, flip=(s < 0)), PAINT, part="sidepods", face_mat=side_mat, sharp=40)
 
         # 앞쪽 흡기구: 앞면 단면을 줄여 어두운 면을 덧댄다.
@@ -774,19 +846,24 @@ def build_sides():
                             Matrix.Translation(P(s * fx, fL, z + 0.004)) @ Matrix.Rotation(math.radians(90), 4, "Y"))
         add_mesh(f"fan_blades_{side}", merge(*blades, hub), ["chrome"], part="sidepods", sharp=50)
 
-        # 스폰슨 앞, 척추 옆의 작은 빨간 베인
-        add_mesh(f"vane_{side}", plate([(0.44, 0.40), (0.34, 0.50), (0.27, 0.50), (0.36, 0.40)], s * 0.43, 0.012, bevel=0.003),
+        # 캐노피 뒤 옆구리의 빨간 베인: 안쪽 앞에서 바깥 뒤로 비스듬히 뻗는다(평면도 |x| 0.32~0.51, L 0.55~0.40).
+        add_mesh(f"vane_{side}", box((s * 0.42, 0.475, 0.48), (0.24, 0.075, 0.17), bevel=0.02, yaw=-s * 38),
                  ["paint_red"], part="sidepods", sharp=40)
 
-    # 플로어와 디퓨저
-    floor = SectionLoft([(L, [(0, .058), (w * .97, .058), (w, .070), (w * .97, .082), (0, .082)]) for L, w in [
-        (0.42, 0.40), (0.30, 0.62), (-1.25, 0.72), (-1.38, 0.55), (-2.20, 0.42)]],
+        # 서스펜션 레일: 차체 옆을 따라 앞바퀴 두 쌍의 암을 받치는 회색 보(평면도 |x| 0.46~0.55, L 0.45~1.5)
+        add_mesh(f"susp_rail_{side}", box((s * 0.505, 0.97, 0.245), (0.085, 1.06, 0.14), bevel=0.022),
+                 ["paint_gray"], part="suspension", sharp=45)
+
+    # 플로어와 디퓨저, 꼬리 아래 기어박스
+    floor = SectionLoft([(L, [(0, .053), (w * .97, .053), (w, .065), (w * .97, .077), (0, .077)]) for L, w in [
+        (0.42, 0.40), (0.30, 0.55), (-1.12, 0.68), (-1.25, 0.55), (-2.20, 0.45)]],
         sharp=[False, True, False, True, False], iters=2)
     add_mesh("floor", floor.geo(30), ["carbon"], part="underbody", sharp=50)
-    strakes = merge(*[plate([(-1.45, 0.07), (-2.22, 0.07), (-2.28, 0.26), (-1.90, 0.22)], x, 0.014)
+    strakes = merge(*[plate([(-1.45, 0.07), (-2.10, 0.07), (-2.17, 0.24), (-1.90, 0.22)], x, 0.014)
                       for x in (-0.34, -0.16, 0.16, 0.34)])
     add_mesh("diffuser", strakes, ["carbon"], part="underbody", sharp=50)
-    add_mesh("rain_light", box((0, -2.31, 0.47), (0.05, 0.014, 0.03), bevel=0.004), ["lamp_red"], part="underbody", sharp=50)
+    add_mesh("gearbox", box((0, -2.03, 0.27), (0.86, 0.32, 0.30), bevel=0.03), ["paint_gray"], part="underbody", sharp=50)
+    add_mesh("rain_light", box((0, -2.195, 0.38), (0.05, 0.014, 0.03), bevel=0.004), ["lamp_red"], part="underbody", sharp=50)
 
 
 def build_front():
@@ -794,15 +871,22 @@ def build_front():
         """패널: 0·2 앞전, 1 윗면, 3 바닥. 윗면 줄무늬와 번호는 뷰어가 데칼로 입힌다."""
         return {1: WHITE, 3: CARBON}.get(p, BLUE)
     add_mesh("front_cowl", COWL.geo(32), PAINT, part="front_cowl", face_mat=cowl_mat, sharp=40)
+
+    def horn_mat(x, L, z, p=None):
+        """패널: 0 바닥, 1 바깥 옆면, 2 마루, 3 안쪽 옆면. 마루는 끝(L 2.0 앞)만 파랗고 뒤는 흰색."""
+        if p == 0:
+            return CARBON
+        return WHITE if p == 2 and L < 2.0 else BLUE
     for side, s in (("L", 1), ("R", -1)):
-        add_mesh(f"horn_{side}", HORN.geo(28, flip=(s < 0)), ["paint_blue"], part="front_cowl", sharp=40)
-        # 헤드라이트: 노즈 양옆의 노란 렌즈
-        add_mesh(f"headlight_{side}", conform_lens([(0.16, 2.20), (0.22, 2.17), (0.40, 1.90), (0.34, 1.86), (0.18, 2.06)],
-                                                   COWL, 0.016, -0.004, flip=(s < 0)),
+        add_mesh(f"horn_{side}", HORN.geo(28, flip=(s < 0)), PAINT, part="front_cowl", face_mat=horn_mat, sharp=40)
+        # 노란 셰브런 램프: 노즈 척추 옆 경사면을 따라 비스듬히 붙는다.
+        add_mesh(f"headlight_{side}", conform_lens([(0.148, 1.94), (0.182, 1.94), (0.315, 1.46), (0.250, 1.46),
+                                                    (0.148, 1.64)], TUB, 0.012, -0.006, flip=(s < 0),
+                                                   sharp=[True, True, True, True, False]),
                  ["lamp_yellow"], part="nose", sharp=60)
-        # 카울 뒷전 플랩(에어로 모드에서 각도를 키운다). 앞바퀴 안쪽(0.77)보다 안쪽에 둔다.
-        empty(f"piv_front_flap_{side}", s * 0.52, 1.54, 0.225, parent="chassis", part="front_cowl")
-        add_mesh(f"front_flap_{side}", wing(s * 0.33, s * 0.72, 0.12, 1.54, 0.225, 12, t=0.10),
+        # 카울 뒷전 플랩(에어로 모드에서 각도를 키운다). 앞바퀴(L 1.455)보다 앞, 카울 뒷전 바깥쪽 윗면에 얹는다.
+        empty(f"piv_front_flap_{side}", s * 0.64, 1.64, 0.316, parent="chassis", part="front_cowl")
+        add_mesh(f"front_flap_{side}", wing(s * 0.48, s * 0.80, 0.08, 1.64, 0.316, 12, t=0.10),
                  ["paint_blue"], parent=f"piv_front_flap_{side}", part="front_cowl", sharp=40)
 
 
@@ -814,11 +898,15 @@ def build_cockpit():
     fa = Pchip(Ls, [r[1] for r in reversed(CANOPY)])
     ft = Pchip(Ls, [r[2] for r in reversed(CANOPY)])
     nc, M = 2.4, 27
+
+    def glass_peak(L):
+        return max(ft(L), TUB.top(L, 0) + 0.004)
+
     rings, rim_l, rim_r = [], [], []
     for L in cosine_samples(CANOPY[0][0], CANOPY[-1][0], 36):
         a = max(fa(L), 0.004)
         base_c = TUB.top(L, 0)
-        peak = max(ft(L), base_c + 0.004)
+        peak = glass_peak(L)
         r = []
         for j in range(M):
             th = math.pi * j / (M - 1)
@@ -834,74 +922,115 @@ def build_cockpit():
     add_mesh("canopy_frame", curve_tube(rim_l + list(reversed(rim_r)), 0.016), ["paint_white"],
              parent="piv_canopy", part="canopy", sharp=None)
 
+    # 지붕 마루: 유리 꼭대기(유리가 끝난 뒤는 차체 윗면)에 얹힌 흰 렌즈.
+    Lr = [r[0] for r in reversed(ROOF)]
+    ra = Pchip(Lr, [r[1] for r in reversed(ROOF)])
+    rp = Pchip(Lr, [r[2] for r in reversed(ROOF)])
+    roof = []
+    for L in cosine_samples(ROOF[0][0], ROOF[-1][0], 24):
+        on_glass = CANOPY[-1][0] < L < CANOPY[0][0]
+        base = (glass_peak(L) if on_glass else TUB.top(L, 0)) - 0.04
+        peak = max(rp(L), base + 0.045)
+        roof.append(ring(L, max(ra(L), 0.004), base, peak - base, 0.01, 2.2, N=32))
+    add_mesh("canopy_roof", loft(roof), ["paint_white"], parent="piv_canopy", part="canopy", sharp=None)
+
     # 실내
-    seat = merge(box((0, 0.24, 0.335), (0.38, 0.40, 0.07), bevel=0.03),
-                 box((0, 0.02, 0.50), (0.38, 0.07, 0.36), bevel=0.03, tilt=22),
-                 box((0, -0.03, 0.70), (0.22, 0.08, 0.12), bevel=0.03, tilt=22))
+    seat = merge(box((0, 0.20, 0.335), (0.36, 0.40, 0.07), bevel=0.03),
+                 box((0, -0.02, 0.50), (0.36, 0.07, 0.36), bevel=0.03, tilt=22),
+                 box((0, -0.07, 0.70), (0.22, 0.08, 0.12), bevel=0.03, tilt=22))
     add_mesh("seat", seat, ["seat"], part="cockpit", sharp=50)
-    add_mesh("steering", merge(torus((0, 0.66, 0.52), 0.09, 0.014, tilt=-12),
-                               box((0, 0.73, 0.50), (0.03, 0.14, 0.03), tilt=-12),
-                               box((0, 0.66, 0.52), (0.12, 0.02, 0.05), bevel=0.01, tilt=-12)),
+    add_mesh("steering", merge(torus((0, 0.58, 0.52), 0.09, 0.014, tilt=-12),
+                               box((0, 0.65, 0.50), (0.03, 0.14, 0.03), tilt=-12),
+                               box((0, 0.58, 0.52), (0.12, 0.02, 0.05), bevel=0.01, tilt=-12)),
              ["carbon"], part="cockpit", sharp=None)
-    add_mesh("dash", box((0, 0.88, 0.50), (0.44, 0.14, 0.12), bevel=0.02), ["carbon"], part="cockpit", sharp=50)
-    add_mesh("ai_screen", box((0, 0.805, 0.52), (0.26, 0.008, 0.08), tilt=-18), ["ai_screen"],
+    add_mesh("dash", box((0, 0.80, 0.50), (0.36, 0.12, 0.12), bevel=0.02), ["carbon"], part="cockpit", sharp=50)
+    add_mesh("ai_screen", box((0, 0.735, 0.52), (0.24, 0.008, 0.08), tilt=-18), ["ai_screen"],
              part="cyber_system", sharp=50)
 
 
-def build_rear():
-    for side, s in (("L", 1), ("R", -1)):
-        # 리어 펜더: 뒷바퀴 위를 덮는 얇은 날개. 윗면 뒷전은 노랑.
-        add_mesh(f"fender_{side}", FENDER.geo(24, flip=(s < 0)), PAINT, part="tail_fins",
-                 face_mat=lambda x, L, z, p=None: CARBON if p == 0 else (YELLOW if L < -2.16 and p == 3 else BLUE), sharp=40)
+def panel_wing(sections, flip=False):
+    """(|x|, 앞전 L, 뒷전 L, 가운데 높이, 두께) 단면 사이를 대칭 익형으로 이은 테이퍼 날개."""
+    s = -1 if flip else 1
+    rings = []
+    for x, Lle, Lte, zm, th in sections:
+        c = Lle - Lte
+        rings.append([P(s * x, Lle - u * c, zm + v * c) for u, v in airfoil(t=th / c, camber=0.0)])
+    return loft(rings)
 
-        x0 = s * POD_X
+
+def lean_plate(poly_Lz, line, thick, s):
+    """옆모습 윤곽을 두께만큼 돌출한 뒤 높이에 따라 가로로 민다(정면에서 line(z)를 따라 기운 판)."""
+    verts, faces = plate(poly_Lz, 0.0, thick, bevel=0.008)
+    return [Vector((s * (v.x + line(v.z)), v.y, v.z)) for v in verts], faces
+
+
+def build_rear():
+    Ls = [r[0] for r in reversed(NACELLE)]
+    fr = Pchip(Ls, [r[1] for r in reversed(NACELLE)])
+    fz = Pchip(Ls, [r[2] for r in reversed(NACELLE)])
+    (wx0, wLe0, wTe0, wz0, _), (wx1, wLe1, wTe1, wz1, _) = REAR_WING
+    for side, s in (("L", 1), ("R", -1)):
+        x0 = s * NACELLE_X
         # 부스트 나셀: 파란 페어링(고정) + 빨간 슈라우드·노즐·터빈(부스트 때 뒤로 밀림)
-        fair = [ring(L, r, POD_Z, r, r, 2.0, N=48, x0=x0) for L, r in
-                [(-1.46, 0.03), (-1.51, 0.12), (-1.57, 0.18), (-1.63, 0.200), (-1.69, 0.206)]]
+        fair = []
+        for L in cosine_samples(NACELLE[0][0], NACELLE[-1][0], 28):
+            r = max(fr(L), 0.004)
+            fair.append(ring(L, r, fz(L), r, r, 2.0, N=48, x0=x0))
         add_mesh(f"pod_fairing_{side}", loft(fair), ["paint_blue"], part="boost_pods", sharp=None)
         piv = f"piv_pod_{side}"
-        empty(piv, x0, -2.00, POD_Z, parent="chassis", part="boost_pods")
-        shroud = [(-1.58, 0.194), (-1.67, 0.194), (-1.69, 0.210), (-2.28, 0.212), (-2.38, 0.198),
-                  (-2.38, 0.180), (-2.08, 0.184), (-1.60, 0.186)]
-        add_mesh(f"boost_shroud_{side}", revolve(shroud, (x0, POD_Z), "L", seg=56), ["paint_red"],
+        empty(piv, x0, -2.00, NACELLE_Z, parent="chassis", part="boost_pods")
+        shroud = [(-1.80, 0.247), (-1.86, 0.247), (-1.88, 0.268), (-2.10, 0.275), (-2.25, 0.258),
+                  (-2.36, 0.238), (-2.36, 0.220), (-2.10, 0.246), (-1.82, 0.240)]
+        add_mesh(f"boost_shroud_{side}", revolve(shroud, (x0, NACELLE_Z), "L", seg=56), ["paint_red"],
                  parent=piv, part="boost_pods", sharp=45)
-        nozzle = [(-2.08, 0.184), (-2.35, 0.160), (-2.35, 0.148), (-2.10, 0.171)]
-        spike = [(-2.13, 0.0), (-2.13, 0.096), (-2.27, 0.066), (-2.37, 0.0)]
-        add_mesh(f"boost_nozzle_{side}", merge(revolve(nozzle, (x0, POD_Z), "L", seg=48),
-                                               revolve(spike, (x0, POD_Z), "L", seg=32)),
+        nozzle = [(-2.12, 0.240), (-2.36, 0.224), (-2.42, 0.190), (-2.47, 0.140), (-2.47, 0.122), (-2.40, 0.172),
+                  (-2.14, 0.222)]
+        spike = [(-2.15, 0.0), (-2.15, 0.130), (-2.32, 0.090), (-2.44, 0.0)]
+        add_mesh(f"boost_nozzle_{side}", merge(revolve(nozzle, (x0, NACELLE_Z), "L", seg=48),
+                                               revolve(spike, (x0, NACELLE_Z), "L", seg=32)),
                  ["chrome"], parent=piv, part="boost_pods", sharp=45)
-        blades = [transform_geo(box((0, 0, 0), (0.009, 0.024, 0.082)),
-                                Matrix.Translation(P(x0, -2.15, POD_Z)) @ Matrix.Rotation(math.radians(k * 30), 4, "Y")
-                                @ Matrix.Translation(Vector((0, 0, 0.138))) @ Matrix.Rotation(math.radians(30), 4, "Z"))
+        blades = [transform_geo(box((0, 0, 0), (0.010, 0.028, 0.105)),
+                                Matrix.Translation(P(x0, -2.17, NACELLE_Z)) @ Matrix.Rotation(math.radians(k * 30), 4, "Y")
+                                @ Matrix.Translation(Vector((0, 0, 0.175))) @ Matrix.Rotation(math.radians(30), 4, "Z"))
                   for k in range(12)]
         add_mesh(f"boost_blades_{side}", merge(*blades), ["metal_dark"], parent=piv, part="boost_pods", sharp=50)
-        add_mesh(f"boost_glow_{side}", revolve([(-2.125, 0.090), (-2.125, 0.182), (-2.13, 0.182), (-2.13, 0.090)],
-                                               (x0, POD_Z), "L", seg=40),
+        add_mesh(f"boost_glow_{side}", revolve([(-2.165, 0.120), (-2.165, 0.240), (-2.17, 0.240), (-2.17, 0.120)],
+                                               (x0, NACELLE_Z), "L", seg=40),
                  ["glow_boost"], parent=piv, part="boost_pods", smooth=False)
 
-        # 테일 핀: 펜더 바깥 끝의 노란 받침(고정) + 파란 핀(바깥으로 30° 기울고, 에어로 모드에서 솟는다)
-        fx = s * 1.05
-        add_mesh(f"tailfin_base_{side}", box((fx, -1.75, 0.82), (0.10, 1.16, 0.07), bevel=0.02),
-                 ["paint_yellow"], part="tail_fins", sharp=40)
-        empty(f"piv_tailfin_{side}", fx, -1.90, 0.80, parent="chassis", part="tail_fins")
-        main = plate([(-1.16, 0.80), (-1.62, 1.10), (-2.05, 1.45), (-2.46, 1.43), (-2.40, 1.15), (-2.34, 0.80)],
-                     fx, 0.045, bevel=0.010)
-        tip = plate([(-2.05, 1.45), (-2.14, 1.62), (-2.50, 1.60), (-2.46, 1.43)], fx, 0.045, bevel=0.010)
-        fin = merge(main, transform_geo(tip, Matrix.Translation(Vector((0, 0, 0.0005)))))
-        n_main = len(main[1])
-        # 뒤로 갈수록 바깥으로 벌리고(토아웃 12°), 바깥으로 30° 눕힌다.
-        pv = P(fx, -1.90, 0.80)
-        fin = transform_geo(fin, Matrix.Translation(pv) @ Matrix.Rotation(math.radians(-s * 12), 4, "Z") @ Matrix.Translation(-pv))
-        fin = lean_geo(fin, fx, -1.90, 0.80, s * 30)
-        me_faces = [1 if i >= n_main else 0 for i in range(len(fin[1]))]
-        add_mesh(f"tailfin_{side}", (fin[0], fin[1], me_faces), ["paint_blue", "paint_yellow"], parent=f"piv_tailfin_{side}",
-                 part="tail_fins", face_mat=lambda x, L, z, p=None: p, sharp=40)
+        # 리어 윙: 나셀에서 핀 포드까지 15° 들린 날개. 윗면 뒷전은 노랑.
+        def wing_mat(x, L, z, p=None):
+            t = (abs(x) - wx0) / (wx1 - wx0)
+            zm, te = wz0 + (wz1 - wz0) * t, wTe0 + (wTe1 - wTe0) * t
+            return YELLOW if z > zm and L < te + 0.15 else BLUE
+        add_mesh(f"rear_wing_{side}", panel_wing(REAR_WING, flip=(s < 0)), PAINT, part="tail_fins",
+                 face_mat=wing_mat, sharp=40)
+
+        # 테일 핀 묶음(포드 + 바깥 판 + 안쪽 판): 에어로 모드에서 함께 솟는다. 피벗은 포드 바닥 가운데.
+        fp = f"piv_tailfin_{side}"
+        empty(fp, s * 1.18, -1.70, 0.94, parent="chassis", part="tail_fins")
+
+        def pod_mat(x, L, z, p=None):
+            """패널: 0 바닥, 1 바깥, 2 윗면, 3 안쪽 윗모서리, 4 안쪽. 윗면 뒤쪽은 노랑."""
+            if p == 0:
+                return CARBON
+            return YELLOW if p == 2 and L < -1.65 else BLUE
+        add_mesh(f"fin_pod_{side}", POD.geo(30, flip=(s < 0)), PAINT, parent=fp, part="tail_fins",
+                 face_mat=pod_mat, sharp=40)
+        blue = lean_plate(FIN_BLUE, blade_x, 0.045, s)
+        yellow = lean_plate(FIN_YELLOW, blade_x, 0.045, s)
+        fin = merge(blue, transform_geo(yellow, Matrix.Translation(Vector((0, 0, 0.0005)))))
+        n_blue = len(blue[1])
+        add_mesh(f"tailfin_{side}", (fin[0], fin[1], [1 if i >= n_blue else 0 for i in range(len(fin[1]))]),
+                 ["paint_blue", "paint_yellow"], parent=fp, part="tail_fins", face_mat=lambda x, L, z, p=None: p, sharp=40)
+        add_mesh(f"fin_strip_{side}", lean_plate(FIN_STRIP, strip_x, 0.03, s), ["paint_blue"], parent=fp,
+                 part="tail_fins", sharp=40)
 
         # 에어 브레이크: 스폰슨 윗면 뒤쪽 패널. 뒷전 힌지, 앞쪽이 들려 바람을 받는다.
-        ax, aL = 0.80, -0.85
+        ax, aL = 0.66, -0.55
         az = SIDE.top(aL, ax) + 0.002
         empty(f"piv_airbrake_{side}", s * ax, aL - 0.20, az, parent="chassis", part="airbrake")
-        add_mesh(f"airbrake_{side}", box((s * ax, aL, az + 0.007), (0.28, 0.40, 0.014), bevel=0.005),
+        add_mesh(f"airbrake_{side}", box((s * ax, aL, az + 0.007), (0.26, 0.40, 0.014), bevel=0.005),
                  ["paint_blue", "paint_red"], parent=f"piv_airbrake_{side}", part="airbrake",
                  face_mat=lambda x, L, z, p=None, az=az: 1 if z < az + 0.006 else 0, sharp=50)
 
