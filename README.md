@@ -34,39 +34,61 @@
 ```
 blender/build_asurada.py   차체 생성 스크립트 (Blender 5.2)
 blender/asurada.blend      생성된 Blender 파일
-blender/asurada.glb        생성된 GLB
+blender/asurada.glb        압축하지 않은 기준 GLB (내보내기 왕복 비교용)
 web/index.html             뷰어 화면 (문서 뼈대 없는 본문 조각)
 web/app.js                 뷰어 로직
-web/asurada.gltf.json      뷰어가 읽는 모델 (버퍼 내장 glTF)
-tools/serve.mjs            로컬 미리보기 서버 (의존성 없음)
-tools/build-pages.mjs      GitHub Pages용 dist/ 빌드
+web/asurada.glb            meshopt로 압축한 모델 (GitHub Pages가 서빙)
+web/asurada.gltf.json      같은 모델의 버퍼 내장 glTF (claude.ai 아티팩트·로컬 미리보기용)
+tools/serve.mjs            로컬 미리보기 서버 (--dist면 빌드 결과를 그대로 서빙)
+tools/build-pages.mjs      GitHub Pages용 dist/ 빌드 (three.js 자체 호스팅 포함)
+tools/smoke.mjs            헤드리스 Chrome 스모크 테스트와 공유 미리보기 생성
 tools/page-shell.mjs       index.html에 문서 뼈대를 씌우는 공용 함수
-assets/og.png              공유 미리보기 이미지 (1200×630)
+assets/og.png              공유 미리보기 이미지 (1200×630, README와 로컬 빌드용)
 ```
 
-`web/index.html`은 claude.ai 아티팩트에도 그대로 올릴 수 있도록 `<!doctype>`·`<head>` 없이 본문만 둡니다. 로컬 서버와 Pages 빌드가 같은 뼈대를 씌웁니다.
+`web/index.html`은 claude.ai 아티팩트에도 그대로 올릴 수 있도록 `<!doctype>`·`<head>` 없이 본문만 둡니다. 로컬 서버와 Pages 빌드가 같은 뼈대를 씌웁니다. 로컬 미리보기와 아티팩트는 three.js를 CDN에서 받고, Pages 빌드는 `node_modules/three`에서 필요한 파일만 복사해 함께 올립니다. 두 쪽이 같은 버전을 쓰도록 빌드가 import map의 버전과 `package.json`의 버전이 다르면 멈춥니다.
 
 ## 로컬에서 실행
 
-Node.js 18 이상이면 됩니다. 설치할 패키지는 없습니다.
+Node.js 22 이상이 필요합니다. 미리보기 서버는 설치할 패키지가 없습니다.
 
 ```bash
 node tools/serve.mjs
 ```
 
-http://localhost:8420 을 엽니다. 파일을 직접(`file://`) 열면 모델을 불러오지 못합니다.
+http://localhost:8420 을 엽니다. 파일을 직접(`file://`) 열면 모델을 불러오지 못합니다. 주소에 `?quality=high`를 붙이면 프레임이 느려도 해상도를 낮추지 않습니다.
+
+Pages와 같은 결과물을 만들어 확인하려면:
+
+```bash
+npm ci
+```
+
+```bash
+npm run build
+```
+
+```bash
+npm run serve:dist
+```
+
+스모크 테스트는 미리보기 서버를 띄운 상태에서 실행합니다. Chrome이 필요하고, 다른 위치라면 `--chrome`이나 `CHROME_PATH`로 알려 줍니다. 공유 미리보기 이미지를 다시 찍을 때는 `npm run og`를 씁니다.
+
+```bash
+npm run smoke
+```
 
 ## 모델 다시 만들기
 
 ```bash
-"C:/Program Files/Blender Foundation/Blender 5.2/blender.exe" -b --factory-startup --python-exit-code 1 -P blender/build_asurada.py -- --glb blender/asurada.glb --web web/asurada.gltf.json --blend blender/asurada.blend --preview preview.png
+"C:/Program Files/Blender Foundation/Blender 5.2/blender.exe" -b --factory-startup --python-exit-code 1 -P blender/build_asurada.py -- --glb blender/asurada.glb --web-glb web/asurada.glb --web web/asurada.gltf.json --blend blender/asurada.blend --preview preview.png
 ```
 
-`--preview`를 주면 네 방향 미리보기 시트를 저장합니다. 출력의 `AUDIT_ERRORS`에 바퀴 메시 18개가 "floating"으로 나오는 것은 정상입니다. 서스펜션 암을 뷰어가 런타임에 그리기 때문입니다.
+`--preview`를 주면 네 방향 미리보기 시트를 저장합니다. 출력의 `AUDIT_ERRORS`에 바퀴 메시가 "floating"으로 나오는 것은 정상입니다. 서스펜션 암을 뷰어가 런타임에 그리기 때문입니다.
 
 ## 배포
 
-`main`에 푸시하면 [`.github/workflows/pages.yml`](.github/workflows/pages.yml)이 `node tools/build-pages.mjs`로 `dist/`를 만들어 GitHub Pages에 올립니다. 빌드가 공유 미리보기용 `og:image`에 Pages 주소를 절대 경로로 넣습니다.
+[`.github/workflows/pages.yml`](.github/workflows/pages.yml)이 PR과 `main` 푸시마다 `npm ci` → `dist/` 빌드 → 스모크 테스트를 돌립니다. 스모크 테스트는 헤드리스 Chrome(소프트웨어 WebGL)으로 빌드 결과를 띄워 로딩, 모드·캐노피·엔진 커버·부스트 전환, 파츠 카드를 확인하고, 첫 화면을 `og.png`로 찍습니다. 테스트 화면은 실행 결과의 `smoke-screenshots` 아티팩트로 남습니다. `main`에서는 통과한 결과물을 GitHub Pages에 올립니다. 공유 미리보기용 `og:image`에는 Pages 주소가 절대 경로로 들어갑니다.
 
 ## 알려 두기
 

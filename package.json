@@ -1,0 +1,16 @@
+{
+  "name": "super-asurada-garage",
+  "private": true,
+  "type": "module",
+  "description": "Super Asurada 01 fan-made 3D viewer",
+  "scripts": {
+    "serve": "node tools/serve.mjs",
+    "build": "node tools/build-pages.mjs",
+    "serve:dist": "node tools/serve.mjs --dist",
+    "smoke": "node tools/smoke.mjs --url http://127.0.0.1:8420/",
+    "og": "node tools/smoke.mjs --url http://127.0.0.1:8420/?quality=high --og assets/og.png"
+  },
+  "devDependencies": {
+    "three": "0.170.0"
+  }
+}

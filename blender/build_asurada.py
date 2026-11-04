@@ -11,10 +11,13 @@
 
 실행:
   blender -b --factory-startup --python-exit-code 1 -P build_asurada.py -- \
-      --glb blender/asurada.glb --web web/asurada.gltf.json --blend blender/asurada.blend [--preview preview.png]
+      --glb blender/asurada.glb --web-glb web/asurada.glb --web web/asurada.gltf.json \
+      --blend blender/asurada.blend [--preview preview.png]
 
---web은 GLB의 바이너리 버퍼를 base64로 내장한 glTF JSON이다. claude.ai 아티팩트가 .glb를 서빙하지 않아
-뷰어는 이 파일을 읽는다(three.js GLTFLoader는 두 형식을 모두 읽는다).
+--glb는 압축하지 않은 기준 GLB로, 다시 불러와 원본과 비교(round trip)한다.
+--web-glb는 같은 장면을 meshopt(EXT_meshopt_compression)로 압축한 GLB로, GitHub Pages가 서빙한다.
+--web은 압축 GLB의 바이너리 버퍼를 base64로 내장한 glTF JSON이다. claude.ai 아티팩트가 .glb를 서빙하지 않아
+아티팩트와 로컬 미리보기는 이 파일을 읽는다. 두 웹용 파일 모두 뷰어에 MeshoptDecoder가 필요하다.
 """
 import bisect
 import math
@@ -34,10 +37,10 @@ sys.path.append(os.path.join(SKILLS, "scenario-blender-export", "scripts"))
 
 def parse_args():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
-    opts = {"glb": None, "web": None, "blend": None, "preview": None}
+    opts = {"glb": None, "web_glb": None, "web": None, "blend": None, "preview": None}
     it = iter(argv)
     for a in it:
-        key = a.lstrip("-")
+        key = a.lstrip("-").replace("-", "_")
         if key not in opts:
             raise SystemExit(f"알 수 없는 인자: {a}")
         opts[key] = os.path.abspath(next(it))
@@ -634,7 +637,7 @@ def tub_mat(x, L, z, p=None):
 
 
 def build_tub():
-    tub = add_mesh("body", TUB.geo(120), PAINT, part="body", face_mat=tub_mat, sharp=40)
+    tub = add_mesh("body", TUB.geo(96), PAINT, part="body", face_mat=tub_mat, sharp=40)
 
     # 콕핏: 둥근 상자를 빼서 시트가 들어갈 욕조 모양을 만든다.
     cockpit = add_mesh("cut_cockpit", box((0, 0.565, 0.75), (0.46, 1.17, 0.90), bevel=0.09, segments=4),
@@ -689,7 +692,7 @@ def build_engine():
         for k in range(6):
             Lk = L1 - 0.13 - k * (length - 0.22) / 5
             chrome.append(transform_geo(revolve([(0.0, 0.010), (0.07, 0.017), (0.07, 0.013), (0.0, 0.007)],
-                                                (0, 0, 0), "X", seg=16),
+                                                (0, 0, 0), "X", seg=12),
                                         Matrix.Translation(P(s * 0.03, Lk, 0.45)) @ up))
     add_mesh("engine_block", merge(*parts), ["metal_dark"], part="engine", sharp=45)
     add_mesh("engine_cams", merge(*gold), ["gold"], part="engine", sharp=45)
@@ -721,7 +724,7 @@ def build_sides():
             if p == 2:
                 return RED if 0.46 < L < 0.60 else BLUE
             return WHITE
-        add_mesh(f"sidepod_{side}", SIDE.geo(56, flip=(s < 0)), PAINT, part="sidepods", face_mat=side_mat, sharp=40)
+        add_mesh(f"sidepod_{side}", SIDE.geo(44, flip=(s < 0)), PAINT, part="sidepods", face_mat=side_mat, sharp=40)
 
         # 앞쪽 흡기구: 앞면 단면을 줄여 어두운 면을 덧댄다.
         r = SIDE.ring2d(0.64)
@@ -773,9 +776,9 @@ def build_front():
     def cowl_mat(x, L, z, p=None):
         """패널: 0·2 앞전, 1 윗면, 3 바닥. 윗면 줄무늬와 번호는 뷰어가 데칼로 입힌다."""
         return {1: WHITE, 3: CARBON}.get(p, BLUE)
-    add_mesh("front_cowl", COWL.geo(40), PAINT, part="front_cowl", face_mat=cowl_mat, sharp=40)
+    add_mesh("front_cowl", COWL.geo(32), PAINT, part="front_cowl", face_mat=cowl_mat, sharp=40)
     for side, s in (("L", 1), ("R", -1)):
-        add_mesh(f"horn_{side}", HORN.geo(36, flip=(s < 0)), ["paint_blue"], part="front_cowl", sharp=40)
+        add_mesh(f"horn_{side}", HORN.geo(28, flip=(s < 0)), ["paint_blue"], part="front_cowl", sharp=40)
         # 헤드라이트: 노즈 양옆의 노란 렌즈
         add_mesh(f"headlight_{side}", conform_lens([(0.13, 2.18), (0.18, 2.15), (0.32, 1.88), (0.27, 1.84), (0.15, 2.04)],
                                                    COWL, 0.016, -0.004, flip=(s < 0)),
@@ -833,8 +836,8 @@ def build_rear():
     deck = SectionLoft([(L, [(0, .50 + d), (w * .93, .50 + d), (w, .555), (w * .93, .61 - d * .5), (w * .5, .622 - d * .5),
                              (0, .628 - d * .5)]) for L, w, d in [
         (-1.20, 0.30, 0.06), (-1.28, 0.62, 0.02), (-1.45, 0.645, 0.0), (-1.90, 0.645, 0.0), (-2.04, 0.60, 0.02),
-        (-2.10, 0.40, 0.05)]], sharp=[False, True, False, True, False, False])
-    add_mesh("rear_deck", deck.geo(36), PAINT, part="tail_fins",
+        (-2.10, 0.40, 0.05)]], sharp=[False, True, False, True, False, False], iters=2)
+    add_mesh("rear_deck", deck.geo(24), PAINT, part="tail_fins",
              face_mat=lambda x, L, z, p=None: CARBON if p == 3 else BLUE, sharp=40)
     for side, s in (("L", 1), ("R", -1)):
         x0 = s * POD_X
@@ -886,7 +889,7 @@ def wheel_meshes(R, W, disc):
     rc, ar, aw = (R + Rin) / 2, (R - Rin) / 2 + 0.004, W / 2
     tire_prof = [(aw * math.copysign(abs(math.sin(t)) ** 0.45, math.sin(t)),
                   rc + ar * math.copysign(abs(math.cos(t)) ** 0.5, math.cos(t)))
-                 for t in (2 * math.pi * i / 32 for i in range(32))]
+                 for t in (2 * math.pi * i / 24 for i in range(24))]
 
     def to_mesh(name, geo, mats, sharp):
         verts, faces = geo
@@ -898,7 +901,7 @@ def wheel_meshes(R, W, disc):
         finish(me, sharp=sharp)
         return me
 
-    tire = to_mesh(f"tire_{R}", revolve(tire_prof, (0, 0, 0), "X", seg=72), ["tire"], 60)
+    tire = to_mesh(f"tire_{R}", revolve(tire_prof, (0, 0, 0), "X", seg=56), ["tire"], 60)
     if disc:
         # 뒷바퀴: 흰 에어로 디스크(양면이 살짝 볼록)
         prof = [(-0.44 * W, 0.985 * Rin), (0.44 * W, 0.985 * Rin), (0.44 * W, 0.94 * Rin), (0.40 * W, 0.60 * Rin),
@@ -960,9 +963,13 @@ def glb_to_embedded_json(glb_path, out_path):
             doc = json.loads(chunk.decode("utf-8"))
         elif ctype == b"BIN\x00":
             binary = chunk
-    if doc is None or binary is None or len(doc.get("buffers", [])) != 1:
-        raise ValueError("JSON/BIN 청크가 하나씩 있는 GLB만 변환합니다.")
-    doc["buffers"][0]["uri"] = "data:application/octet-stream;base64," + base64.b64encode(binary).decode("ascii")
+    buffers = doc.get("buffers", []) if doc else []
+    # GLB 본문은 항상 첫 버퍼다. meshopt 압축 파일은 압축 해제 크기만 적힌 대체(fallback) 버퍼를 더 갖는데,
+    # 데이터가 없으므로 그대로 둔다.
+    extra = [b for b in buffers[1:] if not b.get("extensions", {}).get("EXT_meshopt_compression", {}).get("fallback")]
+    if doc is None or binary is None or not buffers or "uri" in buffers[0] or extra:
+        raise ValueError("본문 버퍼 하나(+meshopt 대체 버퍼)만 있는 GLB만 변환합니다.")
+    buffers[0]["uri"] = "data:application/octet-stream;base64," + base64.b64encode(binary).decode("ascii")
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(doc, f, separators=(",", ":"), ensure_ascii=False)
 
@@ -1053,10 +1060,18 @@ def main():
         bxe.export(opts["glb"], "gltf", [o.name for o in objs], export_extras=True)
         rt = bxe.round_trip(opts["glb"], [o.name for o in meshes], preset="gltf")
         print("ROUNDTRIP_DIFFS", rt.get("diffs"))
-        if opts["web"]:
-            os.makedirs(os.path.dirname(opts["web"]), exist_ok=True)
-            glb_to_embedded_json(opts["glb"], opts["web"])
-            print("WEB_GLTF", opts["web"], os.path.getsize(opts["web"]))
+        if opts["web"] or opts["web_glb"]:
+            packed = opts["web_glb"] or os.path.join(os.path.dirname(opts["glb"]), "_web_tmp.glb")
+            os.makedirs(os.path.dirname(packed), exist_ok=True)
+            bxe.export(packed, "gltf", [o.name for o in objs], export_extras=True,
+                       export_meshopt_compression_enable=True, export_meshopt_extension="EXT_meshopt_compression")
+            print("WEB_GLB", packed, os.path.getsize(packed), bxe.glb_summary(packed).get("extensions_required"))
+            if opts["web"]:
+                os.makedirs(os.path.dirname(opts["web"]), exist_ok=True)
+                glb_to_embedded_json(packed, opts["web"])
+                print("WEB_GLTF", opts["web"], os.path.getsize(opts["web"]))
+            if not opts["web_glb"]:
+                os.remove(packed)
     if opts["blend"]:
         os.makedirs(os.path.dirname(opts["blend"]), exist_ok=True)
         bpy.ops.wm.save_as_mainfile(filepath=opts["blend"])

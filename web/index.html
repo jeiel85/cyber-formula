@@ -178,6 +178,9 @@
   .marker:hover { background: var(--blue-deep); }
   .marker[data-active="true"] { background: var(--red); border-color: #fff; }
   .marker[data-occluded="true"] { opacity: 0.32; }
+  .marker[data-crowded="true"] { opacity: 0.14; pointer-events: none; }
+  .card h3:focus { outline: none; }
+  .card h3:focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; border-radius: 4px; }
   #markers[hidden] { display: none; }
 
   #tip { position: fixed; left: 0; top: 0; pointer-events: none; padding: 5px 9px; border-radius: 6px; font-size: 12.5px; background: var(--panel-solid); border: 1px solid var(--line); opacity: 0; transition: opacity 0.12s; white-space: nowrap; }
@@ -273,12 +276,12 @@
   </nav>
 
   <section class="left" aria-live="polite">
-    <div class="hint panel" id="hint"><b>조작</b> · 드래그로 회전, 휠·핀치로 확대. 차체 아무 곳이나 눌러 보세요. 키보드: <kbd>B</kbd> 부스트 <kbd>C</kbd> 캐노피 <kbd>E</kbd> 엔진 커버 <kbd>A</kbd> 에어 브레이크 <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 모드</div>
-    <article class="card panel" id="card" hidden>
+    <div class="hint panel" id="hint"><b>조작</b> · 드래그로 회전, 휠·핀치로 확대. 차체 아무 곳이나 눌러 보세요. 키보드: <kbd>B</kbd> 부스트 <kbd>C</kbd> 캐노피 <kbd>E</kbd> 엔진 커버 <kbd>A</kbd> 에어 브레이크 <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 모드 <kbd>←</kbd><kbd>→</kbd> 파츠</div>
+    <article class="card panel" id="card" role="dialog" aria-modal="false" aria-labelledby="card-title" hidden>
       <header>
         <div class="num" id="card-num">01</div>
         <div>
-          <h3 id="card-title">노즈 콘</h3>
+          <h3 id="card-title" tabindex="-1">노즈 콘</h3>
           <div class="en" id="card-en">Nose cone</div>
         </div>
         <button type="button" class="close" id="card-close" aria-label="설명 닫기">×</button>

@@ -8,6 +8,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { DecalGeometry } from 'three/addons/geometries/DecalGeometry.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 
 const $ = (id) => document.getElementById(id);
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -55,7 +56,7 @@ const PARTS = [
   {
     id: 'canopy', name: '캐노피', en: 'Canopy',
     desc: '드라이버를 감싸는 긴 쐐기형 캐노피입니다. 앞끝 힌지를 축으로 뒤쪽이 들리며 열리고, 밑단은 차체 윗면 곡선을 그대로 따라 닫혔을 때 틈 없이 맞물립니다.',
-    facts: [['길이', '1.96 m'], ['개방 각도', '57°'], ['힌지', '앞끝']],
+    facts: [['길이', '1.96 m'], ['개방 각도', '41°'], ['힌지', '앞끝']],
     actions: ['canopy'], anchor: [0, 0.92, 0.3], space: 'chassis',
     cam: { pos: [2.3, 1.9, 2.2], target: [0, 0.65, 0.4] },
   },
@@ -176,8 +177,24 @@ try {
   failLoad('이 브라우저에서 WebGL을 시작하지 못했습니다. 하드웨어 가속을 켠 최신 브라우저에서 열어 주세요.');
   throw err;
 }
-const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.75);
-renderer.setPixelRatio(pixelRatio);
+// 화질: 터치 위주의 작은 화면이나 코어가 적은 기기는 낮은 단계에서 시작하고, 실행 중 프레임이 3초 넘게
+// 30fps 아래로 떨어지면 해상도를 한 단계씩(최대 3단계) 낮춘다. 주소에 ?quality=high를 붙이면 고정한다.
+const pinnedHigh = new URLSearchParams(location.search).get('quality') === 'high';
+const lowPower = !pinnedHigh && ((matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 820)
+  || (navigator.hardwareConcurrency || 8) <= 4);
+const quality = { ratio: Math.min(window.devicePixelRatio || 1, lowPower ? 1.25 : 1.75), steps: 0, slow: 0, ema: 16, armedAt: Infinity };
+stage.dataset.quality = quality.ratio.toFixed(2);
+renderer.setPixelRatio(quality.ratio);
+
+// GPU가 재설정되면 그리기를 멈추고 안내한 뒤, 복구되는 즉시 새로 불러온다(환경광·렌더 타깃을 다시 만들기 위해).
+let contextLost = false;
+renderer.domElement.addEventListener('webglcontextlost', (e) => {
+  e.preventDefault();
+  contextLost = true;
+  $('loader').classList.remove('done', 'error');
+  $('loader-text').textContent = '그래픽 장치가 재설정되었습니다. 복구되면 다시 불러옵니다.';
+});
+renderer.domElement.addEventListener('webglcontextrestored', () => location.reload());
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
 renderer.shadowMap.enabled = true;
@@ -207,7 +224,7 @@ scene.add(new THREE.HemisphereLight(0x8aa4ff, 0x0b0d12, 0.55));
 const key = new THREE.DirectionalLight(0xffffff, 2.0);
 key.position.set(4, 8, 5);
 key.castShadow = true;
-key.shadow.mapSize.set(2048, 2048);
+key.shadow.mapSize.set(lowPower ? 1024 : 2048, lowPower ? 1024 : 2048);
 Object.assign(key.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4, near: 1, far: 20 });
 key.shadow.bias = -0.0004;
 key.shadow.normalBias = 0.02;
@@ -228,6 +245,12 @@ const BLOOM = 1;
 const bloomComposer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType }));
 bloomComposer.renderToScreen = false;
 bloomComposer.addPass(new RenderPass(scene, camera));
+// 블룸 입력에서 NaN·무한대를 지우고 과대값을 자른다. 셰이더 하나의 NaN이 블러를 타고 화면 전체를 검게 만드는 걸 막는다.
+bloomComposer.addPass(new ShaderPass({
+  uniforms: { tDiffuse: { value: null } },
+  vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+  fragmentShader: 'uniform sampler2D tDiffuse; varying vec2 vUv; void main() { vec4 c = texture2D(tDiffuse, vUv); gl_FragColor = (any(isnan(c)) || any(isinf(c))) ? vec4(0.0) : clamp(c, 0.0, 32.0); }',
+}));
 const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.9, 0.4, 0.0);
 bloomComposer.addPass(bloom);
 const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 }));
@@ -243,9 +266,9 @@ selPass.visibleEdgeColor.set(0xff3d4a);
 selPass.hiddenEdgeColor.set(0x4a0f16);
 composer.addPass(selPass);
 const mixPass = new ShaderPass(new THREE.ShaderMaterial({
-  uniforms: { baseTexture: { value: null }, bloomTexture: { value: bloomComposer.renderTarget2.texture } },
+  uniforms: { baseTexture: { value: null }, bloomTexture: { value: bloomComposer.renderTarget2.texture }, uAmount: { value: 0 } },
   vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
-  fragmentShader: 'uniform sampler2D baseTexture; uniform sampler2D bloomTexture; varying vec2 vUv; void main() { gl_FragColor = texture2D(baseTexture, vUv) + texture2D(bloomTexture, vUv); }',
+  fragmentShader: 'uniform sampler2D baseTexture; uniform sampler2D bloomTexture; uniform float uAmount; varying vec2 vUv; void main() { gl_FragColor = texture2D(baseTexture, vUv) + uAmount * texture2D(bloomTexture, vUv); }',
 }), 'baseTexture');
 mixPass.needsSwap = true;
 composer.addPass(mixPass);
@@ -255,14 +278,20 @@ const darkened = new Map();
 function darken(o) {
   if ((o.isMesh || o.isLine) && (o.layers.mask & (1 << BLOOM)) === 0) { darkened.set(o, o.material); o.material = darkMat; }
 }
-function renderFrame() {
-  scene.traverse(darken);
-  const bg = scene.background;
-  scene.background = null;
-  bloomComposer.render();
-  scene.background = bg;
-  for (const [o, m] of darkened) o.material = m;
-  darkened.clear();
+// 발광체가 쉬는 동안(부스트 대기)에는 블룸 렌더를 통째로 건너뛰어 프레임당 장면 렌더를 한 번으로 줄인다.
+function renderFrame(bloomOn) {
+  mixPass.uniforms.uAmount.value = bloomOn ? 1 : 0;
+  if (bloomOn) {
+    scene.traverse(darken);
+    const bg = scene.background;
+    scene.background = null;
+    bloomComposer.render();
+    // 정리 패스가 버퍼를 맞바꾸므로 블룸 결과는 렌더마다 두 타깃을 오간다. 매번 현재 읽기 버퍼를 합친다.
+    mixPass.uniforms.bloomTexture.value = bloomComposer.readBuffer.texture;
+    scene.background = bg;
+    for (const [o, m] of darkened) o.material = m;
+    darkened.clear();
+  }
   composer.render();
 }
 
@@ -313,9 +342,9 @@ function resize() {
   const w = stage.clientWidth, h = stage.clientHeight;
   fit = fitScale(w, h);
   renderer.setSize(w, h, false);
-  composer.setPixelRatio(pixelRatio);
+  composer.setPixelRatio(quality.ratio);
   composer.setSize(w, h);
-  bloomComposer.setPixelRatio(pixelRatio * 0.5);
+  bloomComposer.setPixelRatio(quality.ratio * 0.5);
   bloomComposer.setSize(w, h);
   camera.aspect = w / h;
   camera.fov = w < 700 ? 46 : 36;
@@ -361,8 +390,11 @@ const regionOverlays = {}; // 차체 한 덩어리를 나눠 쓰는 파츠(노�
 const markers = {};
 let airflow = null;
 
-// 모델은 버퍼를 base64로 내장한 glTF JSON이다. GLTFLoader에 그대로 주면 내장 버퍼를 data: URI로
-// 다시 fetch하는데, 아티팩트 CSP는 그 요청을 막을 수 있다. 그래서 직접 받아 메모리에서 GLB로 조립한다.
+// 모델 파일: 기본은 버퍼를 base64로 내장한 glTF JSON(아티팩트가 .glb를 서빙하지 않음). Pages 빌드는
+// <meta name="asurada-model" content="asurada.glb">로 압축 GLB를 지정한다. 두 파일 모두 meshopt 압축이다.
+// 내장 JSON을 GLTFLoader에 그대로 주면 버퍼를 data: URI로 다시 fetch하는데 아티팩트 CSP가 막을 수 있어서,
+// 직접 받아 메모리에서 GLB로 조립한다.
+const MODEL_URL = document.querySelector('meta[name="asurada-model"]')?.content || 'asurada.gltf.json';
 async function fetchModel(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -385,10 +417,13 @@ async function fetchModel(url) {
   } else {
     bytes = new Uint8Array(await res.arrayBuffer());
   }
+  if (url.endsWith('.glb')) return bytes.buffer;
   const doc = JSON.parse(new TextDecoder().decode(bytes));
   const buf = doc.buffers?.[0];
   const m = /^data:[^,]*;base64,(.*)$/s.exec(buf?.uri || '');
-  if (!m || doc.buffers.length !== 1) throw new Error('버퍼가 하나 내장된 glTF가 아닙니다.');
+  // 첫 버퍼에 데이터가 내장돼 있고, 나머지는 데이터 없는 meshopt 대체 버퍼여야 한다.
+  const extra = (doc.buffers || []).slice(1).filter((b) => !b.extensions?.EXT_meshopt_compression?.fallback);
+  if (!m || extra.length) throw new Error('본문 버퍼가 내장된 glTF가 아닙니다.');
   const raw = atob(m[1]);
   const bin = new Uint8Array(raw.length);
   for (let i = 0; i < raw.length; i++) bin[i] = raw.charCodeAt(i);
@@ -415,8 +450,8 @@ function toGlb(doc, bin) {
   return out.buffer;
 }
 
-fetchModel('asurada.gltf.json')
-  .then((glb) => new GLTFLoader().parseAsync(glb, ''))
+fetchModel(MODEL_URL)
+  .then((glb) => new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).parseAsync(glb, ''))
   .then((gltf) => {
     setupCar(gltf.scene);
     $('loader-bar').style.width = '100%';
@@ -425,7 +460,7 @@ fetchModel('asurada.gltf.json')
   })
   .catch((err) => {
     console.error(err);
-    failLoad(`차체 데이터(asurada.gltf.json)를 불러오지 못했습니다. ${err?.message || err}`);
+    failLoad(`차체 데이터(${MODEL_URL})를 불러오지 못했습니다. ${err?.message || err}`);
   });
 
 function failLoad(message) {
@@ -692,11 +727,15 @@ function buildMarkers() {
 const _proj = new THREE.Vector3();
 const occRay = new THREE.Raycaster();
 let occIndex = 0;
+// 화면에서 24px 안으로 겹치는 마커는 선택된 것 → 가려지지 않은 것 → 가까운 것 순으로 하나만 남기고
+// 나머지는 흐리게 하며 클릭을 받지 않게 한다(겹친 버튼이 엉뚱한 파츠를 여는 일을 막는다).
+const MARKER_GAP = 24;
 function updateMarkers() {
   if (!state.markers) return;
   const w = stage.clientWidth, h = stage.clientHeight;
   const ids = Object.keys(markers);
   const lift = nodes.chassis ? nodes.chassis.position.y - base.chassis.pos.y : 0;
+  const shown = [];
   ids.forEach((id, i) => {
     const m = markers[id];
     m.world.copy(m.local);
@@ -705,7 +744,11 @@ function updateMarkers() {
     const visible = _proj.z < 1 && Math.abs(_proj.x) < 1.1 && Math.abs(_proj.y) < 1.1;
     m.el.style.visibility = visible ? 'visible' : 'hidden';
     if (!visible) return;
-    m.el.style.transform = `translate(${((_proj.x + 1) / 2) * w}px, ${((1 - _proj.y) / 2) * h}px)`;
+    m.sx = ((_proj.x + 1) / 2) * w;
+    m.sy = ((1 - _proj.y) / 2) * h;
+    m.depth = _proj.z;
+    m.el.style.transform = `translate(${m.sx}px, ${m.sy}px)`;
+    shown.push(id);
     if (i === occIndex % ids.length) {
       const dir = _d.subVectors(m.world, camera.position);
       const dist = dir.length();
@@ -717,6 +760,15 @@ function updateMarkers() {
     }
   });
   occIndex++;
+  shown.sort((a, b) => (b === state.selected) - (a === state.selected)
+    || Number(Boolean(markers[a].occluded)) - Number(Boolean(markers[b].occluded)) || markers[a].depth - markers[b].depth);
+  const kept = [];
+  for (const id of shown) {
+    const m = markers[id];
+    const crowded = kept.some((k) => Math.hypot(k.sx - m.sx, k.sy - m.sy) < MARKER_GAP);
+    if (!crowded) kept.push(m);
+    if (m.crowded !== crowded) { m.crowded = crowded; m.el.dataset.crowded = String(crowded); }
+  }
 }
 
 // 데칼: 캔버스로 만든 리버리 문자를 차체 곡면에 투영한다.
@@ -786,8 +838,8 @@ async function buildDecals() {
     ['front_cowl', cowlArt, V(0, 0.64, 2.06), new THREE.Euler(-H, 0, 0), V(1.7, 0.78, 1.0)],
     ['sidepod_L', sideArt(false), V(0.9, 0.30, 0.10), new THREE.Euler(0, H, 0), V(0.86, 0.215, 0.3)],
     ['sidepod_R', sideArt(true), V(-0.9, 0.30, 0.10), new THREE.Euler(0, -H, 0), V(0.86, 0.215, 0.3)],
-    ['tailfin_L', finNum, V(0.69, 1.03, -2.0), finRot(1), V(0.30, 0.30, 0.06)],
-    ['tailfin_R', finNum, V(-0.69, 1.03, -2.0), finRot(-1), V(0.30, 0.30, 0.06)],
+    ['tailfin_L', finNum, V(0.66, 1.03, -2.0), finRot(1), V(0.30, 0.30, 0.16)],
+    ['tailfin_R', finNum, V(-0.66, 1.03, -2.0), finRot(-1), V(0.30, 0.30, 0.16)],
   ];
   for (const [name, tex, pos, rot, size] of jobs) {
     const target = nodes[name];
@@ -799,7 +851,7 @@ async function buildDecals() {
     });
     target.traverse((m) => {
       if (!m.isMesh || m.parent?.isMesh) return;
-      const geo = new DecalGeometry(m, pos, rot, size);
+      const geo = facingOnly(new DecalGeometry(m, pos, rot, size), V(0, 0, 1).applyEuler(rot));
       if (!geo.attributes.position || geo.attributes.position.count === 0) return;
       const decal = new THREE.Mesh(geo, mat);
       decal.receiveShadow = true;
@@ -809,6 +861,28 @@ async function buildDecals() {
       decal.raycast = () => {};
     });
   }
+}
+
+// DecalGeometry는 면 방향을 가리지 않아 얇은 판의 반대 면에도 찍힌다. 투영 방향(projector의 +z)을
+// 바라보는 삼각형만 남긴다. DecalGeometry의 법선은 월드 좌표다.
+function facingOnly(geo, dir, min = 0.2) {
+  const pos = geo.attributes.position;
+  if (!pos || pos.count === 0) return geo;
+  const nor = geo.attributes.normal, uv = geo.attributes.uv;
+  const keep = [];
+  for (let i = 0; i + 2 < pos.count; i += 3) {
+    let x = 0, y = 0, z = 0;
+    for (let k = 0; k < 3; k++) { x += nor.getX(i + k); y += nor.getY(i + k); z += nor.getZ(i + k); }
+    if ((x * dir.x + y * dir.y + z * dir.z) / (Math.hypot(x, y, z) || 1) > min) keep.push(i, i + 1, i + 2);
+  }
+  const out = new THREE.BufferGeometry();
+  for (const [name, attr] of [['position', pos], ['normal', nor], ['uv', uv]]) {
+    const n = attr.itemSize, arr = new Float32Array(keep.length * n);
+    keep.forEach((v, j) => { for (let c = 0; c < n; c++) arr[j * n + c] = attr.array[v * n + c]; });
+    out.setAttribute(name, new THREE.BufferAttribute(arr, n));
+  }
+  geo.dispose();
+  return out;
 }
 
 function canvasTexture(w, h, draw) {
@@ -1050,8 +1124,8 @@ window.addEventListener('keydown', (e) => {
   else if (k === '2') setMode('aero');
   else if (k === '3') setMode('rally');
   else if (k === 'escape') clearSelection();
-  else if (k === 'arrowright' && state.selected) stepPart(1);
-  else if (k === 'arrowleft' && state.selected) stepPart(-1);
+  else if (k === 'arrowright') stepPart(1);
+  else if (k === 'arrowleft') stepPart(-1);
   else return;
   e.preventDefault();
 });
@@ -1135,6 +1209,7 @@ function setView(name) {
   ui.views.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === name)));
 }
 
+let lastFocus = null;
 function selectPart(id, { fly: doFly = false } = {}) {
   const p = PART_BY_ID[id];
   if (!p) return;
@@ -1159,9 +1234,11 @@ function selectPart(id, { fly: doFly = false } = {}) {
   }));
   dl.hidden = p.facts.length === 0;
   $('card-pos').textContent = `${p.no} / ${PARTS.length}`;
+  if (ui.card.hidden) lastFocus = document.activeElement;
   ui.card.hidden = false;
   ui.hint.hidden = true;
   hud.classList.add('has-card');
+  $('card-title').focus({ preventScroll: true });
   requestAnimationFrame(() => retargetViewOffset());
   for (const [pid, m] of Object.entries(markers)) m.el.dataset.active = String(pid === id);
   renderActions();
@@ -1170,8 +1247,12 @@ function selectPart(id, { fly: doFly = false } = {}) {
 function clearSelection() {
   state.selected = null;
   selPass.selectedObjects = [];
+  const wasOpen = !ui.card.hidden;
   ui.card.hidden = true;
   hud.classList.remove('has-card');
+  // 카드를 연 버튼(마커 등)으로 포커스를 돌려준다. 캔버스 클릭으로 열었으면 body로 남는다.
+  if (wasOpen && lastFocus?.isConnected && lastFocus !== document.body) lastFocus.focus({ preventScroll: true });
+  lastFocus = null;
   for (const m of Object.values(markers)) m.el.dataset.active = 'false';
   retargetViewOffset();
 }
@@ -1306,8 +1387,27 @@ function setPos(name, axis, value) { const n = nodes[name]; if (n) n.position[ax
 const clock = new THREE.Clock();
 let elapsed = 0, screenAcc = 0;
 const shake = new THREE.Vector3();
+function adaptQuality(rawDt) {
+  if (pinnedHigh || document.hidden || quality.steps >= 3 || performance.now() < quality.armedAt) return;
+  const step = Math.min(rawDt, 0.25); // 탭 전환 같은 긴 공백 한 번으로 단계가 내려가지 않게
+  quality.ema += (step * 1000 - quality.ema) * 0.05;
+  quality.slow = quality.ema > 34 ? quality.slow + step : Math.max(0, quality.slow - step);
+  if (quality.slow > 3) {
+    quality.ratio = Math.max(0.75, quality.ratio * 0.8);
+    quality.steps++;
+    quality.slow = 0;
+    quality.ema = 16;
+    stage.dataset.quality = quality.ratio.toFixed(2);
+    resize();
+  }
+}
+
+let introPending = false;
 renderer.setAnimationLoop(() => {
-  const dt = Math.min(clock.getDelta(), 0.05);
+  if (contextLost) return;
+  const rawDt = clock.getDelta();
+  const dt = Math.min(rawDt, 0.05);
+  adaptQuality(rawDt);
   elapsed += dt;
 
   if (nodes.chassis) {
@@ -1316,8 +1416,8 @@ renderer.setAnimationLoop(() => {
     anim.fFlap = damp(anim.fFlap, m.fFlap, 4, dt);
     anim.finRise = damp(anim.finRise, m.finRise, 3, dt);
     anim.finLean = damp(anim.finLean, m.finLean, 3, dt);
-    anim.canopy = damp(anim.canopy, state.canopy ? 1.0 : 0, 2.6, dt);
-    anim.engine = damp(anim.engine, state.engine ? 1.05 : 0, 2.8, dt);
+    anim.canopy = damp(anim.canopy, state.canopy ? 0.72 : 0, 2.6, dt);
+    anim.engine = damp(anim.engine, state.engine ? 1.25 : 0, 2.8, dt);
     anim.airbrake = damp(anim.airbrake, state.airbrake ? -1.0 : 0, 4, dt);
     if (state.boost === 'charging') anim.charge = Math.min(1, anim.charge + dt / 1.2);
     else if (state.boost === 'on') anim.charge = 1;
@@ -1389,12 +1489,13 @@ renderer.setAnimationLoop(() => {
   }
 
   if (fly) {
-    fly.t = Math.min(1, fly.t + dt / fly.duration);
+    fly.t = Math.min(1, fly.t + Math.min(rawDt, 0.25) / fly.duration);
     const e = fly.t < 0.5 ? 4 * fly.t ** 3 : 1 - (-2 * fly.t + 2) ** 3 / 2;
     camera.position.lerpVectors(fly.p0, fly.p1, e);
     controls.target.lerpVectors(fly.t0, fly.t1, e);
     if (fly.t >= 1) fly = null;
   }
+  if (!fly && introPending) { introPending = false; stage.dataset.ready = 'true'; }
   controls.update();
   stepViewOffset(dt);
 
@@ -1404,7 +1505,7 @@ renderer.setAnimationLoop(() => {
   const amp = reduceMotion ? 0 : 0.006 * anim.power;
   shake.set((Math.random() - 0.5) * amp, (Math.random() - 0.5) * amp, (Math.random() - 0.5) * amp);
   camera.position.add(shake);
-  renderFrame();
+  renderFrame(anim.power > 0.01 || anim.charge > 0.01);
   camera.position.sub(shake);
 });
 
@@ -1412,6 +1513,8 @@ function boot() {
   refresh();
   setView('hero');
   fly.duration = reduceMotion ? 0.01 : 1.8;
+  introPending = true;
+  quality.armedAt = performance.now() + 4000; // 셰이더 컴파일 등 시작 직후의 느린 프레임은 세지 않는다
   say('시스템 기동. 사이버 시스템 아스라다, 온라인.');
   setTimeout(() => say('차체를 누르면 그 파츠의 데이터를 보여 드립니다.'), 1900);
 }
