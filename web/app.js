@@ -20,101 +20,101 @@ const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const PARTS = [
   {
     id: 'nose', name: '노즈 & 헤드라이트', en: 'Nose · headlights',
-    desc: '프런트 카울 한가운데서 솟아오르는 파란 노즈입니다. 양옆의 노란 렌즈가 헤드라이트이고, 노즈 등은 그대로 캐노피 앞끝으로 이어집니다.',
-    facts: [['차체 전장', '5.01 m'], ['노즈 끝 높이', '지면에서 0.24 m'], ['헤드라이트', '노란 렌즈 2개']],
-    actions: [], anchor: [0, 0.42, 2.0], space: 'chassis',
-    cam: { pos: [2.0, 1.1, 3.9], target: [0, 0.3, 2.0] },
+    desc: '프런트 카울 한가운데 얹힌 흰 노즈입니다. 양옆의 노란 렌즈가 헤드라이트이고, 노즈 윗면은 그대로 캐노피 앞끝으로 이어져 차 앞부분 전체가 낮은 쐐기를 이룹니다.',
+    facts: [['차체 전장', '5.0 m'], ['노즈 끝 높이', '지면에서 0.14 m'], ['헤드라이트', '노란 렌즈 2개']],
+    actions: [], anchor: [0, 0.36, 2.10], space: 'chassis',
+    cam: { pos: [2.3, 1.2, 4.0], target: [0, 0.25, 2.0] },
   },
   {
     id: 'front_cowl', name: '프런트 카울 & 블레이드', en: 'Front cowl · blade horns',
-    desc: '차 앞을 넓게 덮는 쐐기형 카울과 양끝의 낫 모양 블레이드입니다. 블레이드는 앞으로 갈수록 안쪽으로 휘며 날카롭게 끝납니다. 카울 뒷전의 작은 플랩은 에어로 모드에서 각도를 키우고 랠리 모드에서는 눕습니다.',
-    facts: [['카울 폭', '1.68 m'], ['블레이드 끝 간격', '1.40 m'], ['플랩 받음각 (서킷)', '12°']],
-    actions: ['mode:aero', 'mode:rally'], anchor: [0.55, 0.30, 2.12], space: 'chassis',
-    cam: { pos: [2.6, 1.0, 4.2], target: [0.2, 0.15, 2.1] },
+    desc: '차 앞을 넓게 덮는 쐐기형 카울과 양끝의 낫 모양 블레이드입니다. 카울 앞끝은 지면 가까이 내려가 있고, 블레이드는 앞으로 갈수록 안쪽으로 휘며 날카롭게 끝납니다. 카울 뒷전의 작은 플랩은 에어로 모드에서 각도를 키우고 랠리 모드에서는 눕습니다.',
+    facts: [['카울 폭', '2.00 m'], ['블레이드 끝 간격', '1.84 m'], ['플랩 받음각 (서킷)', '12°']],
+    actions: ['mode:aero', 'mode:rally'], anchor: [0.80, 0.34, 2.05], space: 'chassis',
+    cam: { pos: [3.0, 1.2, 4.3], target: [0.3, 0.15, 2.0] },
   },
   {
     id: 'front_wheels', name: '프런트 4륜', en: 'Six-wheel layout · front',
-    desc: '앞바퀴를 두 쌍, 모두 네 개로 나눈 6륜 구조입니다. 바퀴를 작게 만들어 정면 면적을 줄이면서 앞쪽 접지 면적은 넓혀 제동과 코너 진입을 안정시키는 발상으로, 1976년 F1의 티렐 P34가 실제로 쓴 방식이기도 합니다.',
-    facts: [['타이어 지름', '0.50 m'], ['타이어 폭', '0.22 m'], ['앞 두 축 간격', '0.52 m']],
-    actions: ['boost'], anchor: [0.86, 0.40, 1.12], space: 'root',
-    cam: { pos: [3.2, 0.9, 2.4], target: [0.6, 0.25, 1.12] },
+    desc: '앞바퀴를 두 쌍, 모두 네 개로 나눈 6륜 구조입니다. 좁은 콕핏 척추에서 긴 암을 뻗어 바퀴를 바깥 멀리 두었습니다. 바퀴를 작게 만들어 정면 면적을 줄이면서 앞쪽 접지 면적은 넓히는 발상으로, 1976년 F1의 티렐 P34가 실제로 쓴 방식이기도 합니다.',
+    facts: [['타이어 지름', '0.50 m'], ['타이어 폭', '0.30 m'], ['앞 트레드', '1.84 m']],
+    actions: ['boost'], anchor: [1.20, 0.42, 0.93], space: 'root',
+    cam: { pos: [3.6, 1.0, 2.2], target: [0.9, 0.25, 0.93] },
   },
   {
     id: 'suspension', name: '서스펜션 암', en: 'Wishbone suspension',
-    desc: '바퀴마다 위아래 두 쌍의 위시본 암이 차체에 이어집니다. 암 단면을 납작한 날개꼴로 만들어 공기 저항을 줄였다는 설정입니다. 랠리 모드로 바꾸면 차체가 140mm 떠오르면서 암이 길게 늘어납니다.',
+    desc: '바퀴마다 위아래 두 쌍의 위시본 암이 차체에 이어집니다. 앞바퀴가 바깥 멀리 있어 앞쪽 암이 특히 깁니다. 랠리 모드로 바꾸면 차체가 140mm 떠오르면서 암이 길게 늘어납니다.',
     facts: [['랠리 모드 차고', '+140 mm'], ['에어로 모드 차고', '−20 mm'], ['암 개수', '24개']],
-    actions: ['mode:rally', 'mode:circuit'], anchor: [0.45, 0.33, 1.38], space: 'root',
-    cam: { pos: [1.9, 0.55, 2.9], target: [0.45, 0.25, 1.25] },
+    actions: ['mode:rally', 'mode:circuit'], anchor: [0.58, 0.36, 1.22], space: 'root',
+    cam: { pos: [2.2, 0.6, 2.8], target: [0.55, 0.25, 1.1] },
   },
   {
     id: 'cockpit', name: '콕핏', en: 'Cockpit',
-    desc: '모노코크를 파내 만든 1인승 콕핏입니다. 등받이가 깊이 누운 시트, 스티어링 휠, 대시보드가 들어 있습니다. 캐노피를 열면 안쪽이 잘 보입니다.',
-    facts: [['콕핏 개구부', '0.46 × 1.17 m'], ['시트', '1인승']],
-    actions: ['canopy'], anchor: [0.33, 0.62, 0.55], space: 'chassis',
-    cam: { pos: [1.6, 1.6, 1.6], target: [0, 0.45, 0.5] },
+    desc: '앞바퀴 사이의 좁은 척추를 파내 만든 1인승 콕핏입니다. 등받이가 깊이 누운 시트, 스티어링 휠, 대시보드가 들어 있습니다. 캐노피를 열면 안쪽이 잘 보입니다.',
+    facts: [['콕핏 개구부', '0.54 × 1.12 m'], ['척추 최대 폭', '0.84 m']],
+    actions: ['canopy'], anchor: [0.42, 0.68, 0.45], space: 'chassis',
+    cam: { pos: [1.8, 1.8, 1.6], target: [0, 0.45, 0.4] },
   },
   {
     id: 'canopy', name: '캐노피', en: 'Canopy',
-    desc: '드라이버를 감싸는 긴 쐐기형 캐노피입니다. 앞끝 힌지를 축으로 뒤쪽이 들리며 열리고, 밑단은 차체 윗면 곡선을 그대로 따라 닫혔을 때 틈 없이 맞물립니다.',
-    facts: [['길이', '1.96 m'], ['개방 각도', '41°'], ['힌지', '앞끝']],
-    actions: ['canopy'], anchor: [0, 0.92, 0.3], space: 'chassis',
-    cam: { pos: [2.3, 1.9, 2.2], target: [0, 0.65, 0.4] },
+    desc: '흰 테두리를 두른 긴 쐐기형 캐노피입니다. 꼭대기가 뒤로 갈수록 높아져 리어 바디 윗면으로 이어집니다. 앞끝 힌지를 축으로 뒤쪽이 들리며 열리고, 밑단은 차체 윗면 곡선을 그대로 따라 닫혔을 때 틈 없이 맞물립니다.',
+    facts: [['길이', '2.03 m'], ['개방 각도', '41°'], ['힌지', '앞끝']],
+    actions: ['canopy'], anchor: [0, 1.00, 0.30], space: 'chassis',
+    cam: { pos: [2.5, 2.0, 2.3], target: [0, 0.7, 0.4] },
   },
   {
     id: 'cyber_system', name: '사이버 시스템 ASURADA', en: 'Cyber System AI',
     desc: '대시보드의 빛나는 화면이 이 차의 두뇌인 AI 내비게이션 아스라다입니다. 원작에서 아스라다는 드라이버와 대화하며 주행 데이터를 분석하고 조언하는 사이버 시스템으로 나옵니다. 이 뷰어에서는 왼쪽 아래 콘솔에 아스라다의 메시지가 뜹니다.',
     facts: [['위치', '대시보드 중앙'], ['화면', '실시간 상태 표시']],
-    actions: ['talk', 'canopy'], anchor: [0, 0.57, 0.80], space: 'chassis',
-    cam: { pos: [0.45, 1.1, -0.1], target: [0, 0.5, 0.8] },
+    actions: ['talk', 'canopy'], anchor: [0, 0.62, 0.81], space: 'chassis',
+    cam: { pos: [0.45, 1.2, -0.2], target: [0, 0.52, 0.8] },
   },
   {
-    id: 'sidepods', name: '사이드 바디', en: 'Side bodies',
-    desc: '앞바퀴 뒤에서 뒷바퀴 앞까지 이어지는 넓은 사이드 바디입니다. 앞면 흡기구로 들어온 공기가 냉각 장치를 지나 윗면의 냉각 팬과 옆구리 루버로 빠져나갑니다. 윗면 뒤쪽에는 에어 브레이크 패널이 접혀 있습니다.',
-    facts: [['길이', '1.92 m'], ['최대 폭 (좌우 합)', '1.72 m'], ['냉각 팬', '좌우 1기씩']],
-    actions: ['airbrake'], anchor: [0.90, 0.42, 0.25], space: 'chassis',
-    cam: { pos: [3.0, 1.0, 1.4], target: [0.6, 0.35, -0.1] },
+    id: 'sidepods', name: '사이드 스폰슨', en: 'Side sponsons',
+    desc: '앞바퀴 바로 뒤에서 좁게 시작해 뒤로 갈수록 넓어지는 낮은 델타형 스폰슨입니다. 앞면 흡기구로 들어온 공기가 윗면 냉각 팬과 옆구리 루버로 빠져나갑니다. 가장 넓은 곳을 지나면 뒷바퀴 앞에서 안쪽으로 꺾여 들어가고, 윗면 뒤쪽에는 에어 브레이크 패널이 있습니다.',
+    facts: [['길이', '1.70 m'], ['최대 폭 (좌우 합)', '2.84 m'], ['냉각 팬', '좌우 1기씩']],
+    actions: ['airbrake'], anchor: [1.30, 0.56, -0.55], space: 'chassis',
+    cam: { pos: [3.6, 1.5, 0.9], target: [0.9, 0.35, -0.4] },
   },
   {
     id: 'airbrake', name: '에어 브레이크', en: 'Air brakes',
-    desc: '사이드 바디 윗면 뒤쪽의 패널입니다. 뒤쪽 힌지를 축으로 앞쪽이 들려 바람을 정면으로 받아 감속을 돕습니다. 패널 안쪽은 빨간색이라 펼쳐지면 뒤따르는 차에서도 눈에 잘 띕니다.',
-    facts: [['패널 길이', '0.38 m'], ['최대 각도', '57°'], ['힌지', '뒤쪽']],
-    actions: ['airbrake'], anchor: [0.49, 0.72, -0.80], space: 'chassis',
-    cam: { pos: [2.1, 1.6, 0.3], target: [0.45, 0.55, -0.8] },
+    desc: '스폰슨 윗면 뒤쪽의 패널입니다. 뒤쪽 힌지를 축으로 앞쪽이 들려 바람을 정면으로 받아 감속을 돕습니다. 패널 안쪽은 빨간색이라 펼쳐지면 뒤따르는 차에서도 눈에 잘 띕니다.',
+    facts: [['패널 길이', '0.40 m'], ['최대 각도', '57°'], ['힌지', '뒤쪽']],
+    actions: ['airbrake'], anchor: [0.80, 0.58, -0.85], space: 'chassis',
+    cam: { pos: [2.6, 1.7, 0.2], target: [0.75, 0.48, -0.85] },
   },
   {
     id: 'engine', name: 'V형 엔진 & 6연장 배기', en: 'V engine · exhaust',
-    desc: '드라이버 뒤의 엔진 커버를 열면 V형 엔진이 드러납니다. 양쪽 뱅크 위의 금색 캠 커버, 가운데 줄지은 흡기 트럼펫, 은색 배기 헤더가 보이고, 배기관은 꼬리 아래의 6연장 배기구로 모입니다.',
-    facts: [['엔진룸 길이', '0.94 m'], ['배기구', '6개'], ['커버 힌지', '앞쪽']],
-    actions: ['engine'], anchor: [0, 0.80, -0.82], space: 'chassis',
-    cam: { pos: [1.4, 1.9, -1.9], target: [0, 0.45, -0.85] },
+    desc: '캐노피 뒤로 높이 솟은 리어 바디 윗면의 엔진 커버를 열면 V형 엔진이 드러납니다. 양쪽 뱅크 위의 금색 캠 커버, 가운데 줄지은 흡기 트럼펫, 은색 배기 헤더가 보이고, 배기관은 꼬리 아래의 6연장 배기구로 모입니다.',
+    facts: [['엔진룸 길이', '0.90 m'], ['배기구', '6개'], ['커버 힌지', '앞쪽']],
+    actions: ['engine'], anchor: [0, 1.05, -1.0], space: 'chassis',
+    cam: { pos: [1.5, 2.1, -2.2], target: [0, 0.6, -1.0] },
   },
   {
     id: 'boost_pods', name: '부스트 나셀', en: 'Boost nacelles',
-    desc: '꼬리 위에 나란히 붙은 두 개의 빨간 나셀입니다. 안쪽에 터빈 날개와 은색 노즐이 들어 있습니다. 부스트를 켜면 노즐에서 불꽃이 뿜어지고 나셀이 7cm 뒤로 미끄러져 나오며, 바퀴와 롤링 로드가 돌기 시작합니다.',
-    facts: [['나셀 지름', '0.33 m'], ['터빈 날개', '12장'], ['충전 시간', '1.2 초']],
-    actions: ['boost'], anchor: [0.205, 0.80, -1.75], space: 'chassis',
-    cam: { pos: [1.6, 1.3, -4.0], target: [0.1, 0.55, -1.9] },
+    desc: '꼬리 가운데에 거의 맞닿게 나란히 붙은 두 개의 큰 빨간 나셀입니다. 안쪽에 터빈 날개와 은색 노즐이 들어 있습니다. 부스트를 켜면 노즐에서 불꽃이 뿜어지고 나셀이 7cm 뒤로 미끄러져 나오며, 바퀴와 롤링 로드가 돌기 시작합니다.',
+    facts: [['나셀 지름', '0.42 m'], ['터빈 날개', '12장'], ['충전 시간', '1.2 초']],
+    actions: ['boost'], anchor: [0.235, 1.02, -2.05], space: 'chassis',
+    cam: { pos: [1.7, 1.4, -4.3], target: [0.1, 0.65, -2.1] },
   },
   {
     id: 'rear_wheels', name: '리어 타이어', en: 'Rear wheels',
-    desc: '구동을 맡는 큰 뒷바퀴입니다. 앞바퀴보다 지름도 폭도 훨씬 크고, 휠은 흰 에어로 디스크로 덮여 있습니다. 부스트를 켜면 회전하는 모습을 볼 수 있습니다.',
-    facts: [['타이어 지름', '0.72 m'], ['타이어 폭', '0.40 m'], ['휠', '흰색 에어로 디스크']],
-    actions: ['boost'], anchor: [1.10, 0.50, -1.52], space: 'root',
-    cam: { pos: [3.3, 0.9, -2.8], target: [0.8, 0.36, -1.52] },
+    desc: '구동을 맡는 큰 뒷바퀴입니다. 위는 리어 펜더가 덮고 있어 위에서는 보이지 않습니다. 휠은 흰 에어로 디스크로 덮여 있고, 부스트를 켜면 회전합니다.',
+    facts: [['타이어 지름', '0.67 m'], ['타이어 폭', '0.38 m'], ['뒤 트레드', '1.86 m']],
+    actions: ['boost'], anchor: [1.25, 0.46, -1.72], space: 'root',
+    cam: { pos: [3.6, 0.9, -3.0], target: [0.9, 0.34, -1.72] },
   },
   {
-    id: 'tail_fins', name: '테일 핀', en: 'Tail fins',
-    desc: '꼬리 양옆에서 바깥으로 12° 기울어 솟은 거대한 파란 핀입니다. 리어 윙 역할을 겸해 뒷바퀴를 눌러 줍니다. 에어로 모드에서는 받침에서 30cm 솟아오르며 더 바깥으로 눕고, 다른 모드에서는 제자리로 내려옵니다.',
-    facts: [['핀 꼭대기 높이', '1.36 m'], ['기울기', '바깥 12°'], ['에어로 모드 상승', '+0.30 m']],
-    actions: ['mode:aero', 'mode:circuit'], anchor: [0.72, 1.46, -2.25], space: 'chassis',
-    cam: { pos: [2.6, 1.7, -4.2], target: [0.3, 0.9, -2.0] },
+    id: 'tail_fins', name: '테일 핀 & 리어 펜더', en: 'Tail fins · rear fenders',
+    desc: '뒷바퀴를 위에서 덮는 펜더 바깥 끝에 선 거대한 핀입니다. 바깥으로 30° 눕고 뒤로 갈수록 12° 벌어지며, 끝단은 노랑입니다. 리어 윙 역할을 겸해 뒷바퀴를 눌러 줍니다. 에어로 모드에서는 받침에서 25cm 솟아오르며 더 바깥으로 눕습니다.',
+    facts: [['핀 꼭대기 높이', '1.50 m'], ['기울기', '바깥 30° · 토아웃 12°'], ['에어로 모드 상승', '+0.25 m']],
+    actions: ['mode:aero', 'mode:circuit'], anchor: [1.55, 1.68, -2.30], space: 'chassis',
+    cam: { pos: [3.2, 2.0, -4.4], target: [0.7, 1.0, -2.0] },
   },
   {
     id: 'underbody', name: '플로어 & 디퓨저', en: 'Floor · diffuser',
     desc: '차체 바닥의 평평한 플로어와 꼬리 아래에서 비스듬히 올라가는 디퓨저입니다. 바닥 아래를 지나는 공기를 빠르게 뽑아내 차를 노면 쪽으로 끌어당깁니다. 꼬리 끝의 빨간 등은 레인 라이트로, 부스트 중에는 깜빡입니다.',
     facts: [['디퓨저 핀', '4장'], ['플로어 높이', '지면에서 58 mm']],
-    actions: ['boost'], anchor: [0, 0.14, -2.0], space: 'chassis',
-    cam: { pos: [1.3, 0.35, -4.1], target: [0, 0.2, -1.9] },
+    actions: ['boost'], anchor: [0, 0.14, -2.25], space: 'chassis',
+    cam: { pos: [1.4, 0.35, -4.4], target: [0, 0.2, -2.1] },
   },
 ];
 const PART_BY_ID = Object.fromEntries(PARTS.map((p, i) => [p.id, { ...p, no: i + 1 }]));
@@ -126,24 +126,24 @@ const MODES = {
     say: '테크니컬 서킷 모드로 돌아갑니다. 기본 세팅입니다.',
   },
   aero: {
-    name: '에어로', ride: -0.02, fFlap: 0.18, finRise: 0.30, finLean: 0.12,
-    note: '에어로 모드. 테일 핀을 30cm 솟구쳐 바깥으로 더 눕히고, 카울 플랩을 세워 다운포스를 키웁니다. 차고 −20mm.',
+    name: '에어로', ride: -0.02, fFlap: 0.18, finRise: 0.25, finLean: 0.10,
+    note: '에어로 모드. 테일 핀을 25cm 솟구쳐 바깥으로 더 눕히고, 카울 플랩을 세워 다운포스를 키웁니다. 차고 −20mm.',
     say: '에어로 모드. 테일 핀 상승, 카울 플랩 전개.',
   },
   rally: {
-    name: '랠리', ride: 0.14, fFlap: -0.15, finRise: 0, finLean: -0.04,
+    name: '랠리', ride: 0.14, fFlap: -0.15, finRise: 0, finLean: -0.05,
     note: '랠리 모드. 차고를 140mm 올리고 카울 플랩을 눕혀 험한 노면에 대비합니다.',
     say: '랠리 모드. 차고를 140mm 올립니다. 노면 충격에 대비하세요.',
   },
 };
 
 const VIEWS = {
-  hero: { pos: [4.3, 2.0, 4.7], target: [0, 0.45, 0] },
-  side: { pos: [6.6, 0.9, 0], target: [0, 0.45, 0] },
-  front: { pos: [0, 0.95, 6.4], target: [0, 0.45, 0] },
-  rear: { pos: [0, 1.5, -6.2], target: [0, 0.5, 0] },
-  top: { pos: [0, 7.6, 0.01], target: [0, 0.4, 0] },
-  low: { pos: [3.0, 0.22, 3.7], target: [0, 0.5, 0.4] },
+  hero: { pos: [5.2, 2.5, 5.6], target: [0, 0.5, 0] },
+  side: { pos: [7.6, 1.1, 0], target: [0, 0.5, 0] },
+  front: { pos: [0, 1.2, 7.4], target: [0, 0.5, 0] },
+  rear: { pos: [0, 1.8, -7.2], target: [0, 0.6, 0] },
+  top: { pos: [0, 9.2, 0.01], target: [0, 0.4, 0] },
+  low: { pos: [3.8, 0.3, 4.4], target: [0, 0.55, 0.3] },
 };
 
 const TALK = [
@@ -360,6 +360,7 @@ const MATS = {
   paint_white: new THREE.MeshPhysicalMaterial({ color: 0xe2e7ef, roughness: 0.32, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.06 }),
   paint_blue: new THREE.MeshPhysicalMaterial({ color: 0x1c42c4, roughness: 0.3, metalness: 0.15, clearcoat: 1, clearcoatRoughness: 0.06 }),
   paint_red: new THREE.MeshPhysicalMaterial({ color: 0xd3202c, roughness: 0.3, metalness: 0.05, clearcoat: 1, clearcoatRoughness: 0.06 }),
+  paint_yellow: new THREE.MeshPhysicalMaterial({ color: 0xf2c230, roughness: 0.3, metalness: 0.05, clearcoat: 1, clearcoatRoughness: 0.06 }),
   gold: new THREE.MeshStandardMaterial({ color: 0xd2a640, roughness: 0.28, metalness: 1 }),
   chrome: new THREE.MeshStandardMaterial({ color: 0xdfe3e8, roughness: 0.1, metalness: 1 }),
   lamp_yellow: new THREE.MeshPhysicalMaterial({
@@ -474,7 +475,7 @@ function partOf(obj, point) {
     if (!p) continue;
     if (p !== 'body') return p;
     const local = nodes.chassis.worldToLocal(point.clone());
-    return local.z > 1.72 ? 'nose' : local.z < -0.32 ? 'engine' : 'cockpit';
+    return local.z > 1.68 ? 'nose' : local.z < -0.45 ? 'engine' : 'cockpit';
   }
   return null;
 }
@@ -515,9 +516,9 @@ function buildRegionOverlays() {
   const body = nodes.body;
   if (!body) return;
   const regions = {
-    nose: [new THREE.Plane(V(0, 0, 1), -1.72)],
-    cockpit: [new THREE.Plane(V(0, 0, 1), 0.32), new THREE.Plane(V(0, 0, -1), 1.72)],
-    engine: [new THREE.Plane(V(0, 0, -1), -0.32)],
+    nose: [new THREE.Plane(V(0, 0, 1), -1.68)],
+    cockpit: [new THREE.Plane(V(0, 0, 1), 0.45), new THREE.Plane(V(0, 0, -1), 1.68)],
+    engine: [new THREE.Plane(V(0, 0, -1), -0.45)],
   };
   const meshes = [];
   body.traverse((o) => { if (o.isMesh) meshes.push(o); });
@@ -586,9 +587,9 @@ function buildSuspension() {
   geo.translate(0, 0.5, 0);
   geo.scale(2.4, 1, 0.55);
   const axles = [
-    { z: 1.38, hubX: 0.634, hubLo: 0.19, hubHi: 0.31, lo: [0.20, 0.18, 0.12], hi: [0.22, 0.38, 0.09] },
-    { z: 0.86, hubX: 0.654, hubLo: 0.19, hubHi: 0.31, lo: [0.22, 0.17, 0.12], hi: [0.26, 0.40, 0.09] },
-    { z: -1.52, hubX: 0.708, hubLo: 0.28, hubHi: 0.44, lo: [0.18, 0.20, 0.16], hi: [0.19, 0.42, 0.12] },
+    { z: 1.22, hubX: 0.83, hubLo: 0.19, hubHi: 0.31, lo: [0.24, 0.17, 0.13], hi: [0.30, 0.38, 0.10] },
+    { z: 0.64, hubX: 0.83, hubLo: 0.19, hubHi: 0.31, lo: [0.26, 0.17, 0.13], hi: [0.32, 0.40, 0.10] },
+    { z: -1.72, hubX: 0.786, hubLo: 0.27, hubHi: 0.40, lo: [0.26, 0.20, 0.16], hi: [0.30, 0.42, 0.12] },
   ];
   const group = new THREE.Group();
   group.userData.part = 'suspension';
@@ -640,9 +641,9 @@ function buildFinStalks() {
   const geo = new THREE.BoxGeometry(0.03, 1, 0.06);
   geo.translate(0, 0.5, 0);
   for (const s of [1, -1]) {
-    for (const z of [-1.45, -1.92]) {
+    for (const [x, z] of [[0.96, -1.45], [1.09, -2.10]]) {
       const m = new THREE.Mesh(geo, MATS.metal_dark);
-      m.position.set(s * 0.575, 0.675, z);
+      m.position.set(s * x, 0.855, z);
       m.visible = false;
       m.castShadow = true;
       m.userData.part = 'tail_fins';
@@ -686,14 +687,14 @@ function flameMaterial(core, edge, diamonds, gain, fall) {
   });
 }
 function buildFlames() {
-  const outerGeo = new THREE.ConeGeometry(0.12, 1, 32, 12, true);
+  const outerGeo = new THREE.ConeGeometry(0.15, 1, 32, 12, true);
   outerGeo.translate(0, 0.5, 0).rotateX(-Math.PI / 2);
   const outerMat = flameMaterial(0x9fd2ff, 0x1f45d8, 0.0, 1.3, 0.9);
   const coreMat = flameMaterial(0xffffff, 0x8adcff, 1.0, 3.8, 1.5);
   for (const side of ['L', 'R']) {
     const piv = nodes[`piv_pod_${side}`];
     if (!piv) continue;
-    const exit = V(0, 0, -0.33); // 노즐 출구 (나셀 피벗 기준)
+    const exit = V(0, 0, -0.38); // 노즐 출구 (나셀 피벗 기준)
     const outer = new THREE.Mesh(outerGeo, outerMat);
     const core = new THREE.Mesh(outerGeo, coreMat);
     outer.position.copy(exit); core.position.copy(exit);
@@ -701,7 +702,7 @@ function buildFlames() {
     outer.layers.enable(BLOOM);
     core.layers.enable(BLOOM);
     const light = new THREE.PointLight(0x9cc8ff, 0, 3, 2);
-    light.position.set(0, 0, -0.65);
+    light.position.set(0, 0, -0.75);
     piv.add(outer, core, light);
     outer.visible = core.visible = false;
     flames.push({ outer, core, light, seed: side === 'L' ? 0 : 1.7 });
@@ -783,45 +784,39 @@ async function buildDecals() {
   const lift = nodes.chassis.position.y - base.chassis.pos.y; // 폰트를 기다리는 동안 모드가 바뀌었을 수 있다
   const BLUE = '#1c42c4';
   const font = (px) => `italic 800 ${px}px Saira, "Arial Narrow", Arial, sans-serif`;
-  // 프런트 카울 윗면: 평면도(x −0.85~0.85, L 1.67~2.45)를 캔버스에 그대로 옮겨 그린다. 캔버스 위쪽이 차의 뒤쪽이다.
-  const cowlArt = canvasTexture(1024, 470, (c, w, h) => {
-    const px = (x) => ((x + 0.85) / 1.7) * w;
-    const py = (L) => ((L - 1.67) / 0.78) * h;
+  // 프런트 카울 윗면: 평면도(x −1.05~1.05, L 1.50~2.46)를 캔버스에 그대로 옮겨 그린다. 캔버스 위쪽이 차의 뒤쪽이다.
+  const cowlArt = canvasTexture(1024, 468, (c, w, h) => {
+    const px = (x) => ((x + 1.05) / 2.1) * w;
+    const py = (L) => ((L - 1.50) / 0.96) * h;
     c.fillStyle = BLUE;
     for (const s of [1, -1]) {
-      for (const [l0, l1] of [[1.80, 1.86], [1.90, 1.95]]) {
+      for (const [l0, l1] of [[1.70, 1.77], [1.82, 1.88]]) {
         c.beginPath();
-        c.moveTo(px(s * 0.12), py(l0));
-        c.lineTo(px(s * 0.12), py(l1));
-        c.lineTo(px(s * 0.80), py(l1 + 0.24));
-        c.lineTo(px(s * 0.80), py(l0 + 0.24));
+        c.moveTo(px(s * 0.18), py(l0));
+        c.lineTo(px(s * 0.18), py(l1));
+        c.lineTo(px(s * 0.95), py(l1 + 0.28));
+        c.lineTo(px(s * 0.95), py(l0 + 0.28));
         c.closePath();
         c.fill();
       }
     }
-    c.font = font(150);
+    c.font = font(130);
     c.textAlign = 'center';
     c.textBaseline = 'middle';
     c.lineWidth = 12;
     c.strokeStyle = '#ffffff';
-    c.strokeText('30', px(0.50), py(1.76));
-    c.fillText('30', px(0.50), py(1.76));
+    c.strokeText('30', px(0.62), py(1.64));
+    c.fillText('30', px(0.62), py(1.64));
   });
-  // 사이드 바디 옆면: 뒤로 갈수록 올라가는 파란 줄무늬와 ASURADA. 오른쪽은 줄무늬만 좌우를 뒤집는다.
-  const sideArt = (mirror) => canvasTexture(1024, 256, (c, w, h) => {
-    c.fillStyle = BLUE;
-    const y = mirror ? [0.50, 0.78, 0.94, 0.66] : [0.78, 0.50, 0.66, 0.94];
-    c.beginPath();
-    c.moveTo(0, h * y[0]);
-    c.lineTo(w, h * y[1]);
-    c.lineTo(w, h * y[2]);
-    c.lineTo(0, h * y[3]);
-    c.closePath();
-    c.fill();
+  // 리어 바디 옆면(스폰슨 위로 드러난 파란 벽): 흰 ASURADA와 빨간 밑줄. 오른쪽은 글자를 오른쪽에 맞춘다.
+  const sideArt = (mirror) => canvasTexture(1024, 232, (c, w, h) => {
     c.font = font(118);
     c.textBaseline = 'alphabetic';
     c.textAlign = mirror ? 'right' : 'left';
-    c.fillText('ASURADA', mirror ? w - 40 : 40, h * 0.5);
+    c.fillStyle = '#f4f6fa';
+    c.fillText('ASURADA', mirror ? w - 30 : 30, h * 0.62);
+    c.fillStyle = '#d3202c';
+    c.fillRect(mirror ? 160 : 40, h * 0.74, w - 200, h * 0.08);
   });
   const finNum = canvasTexture(256, 256, (c, w) => {
     c.font = font(170);
@@ -831,15 +826,18 @@ async function buildDecals() {
     c.fillText('30', w / 2, w / 2 + 8);
   });
   const H = Math.PI / 2;
-  const lean = THREE.MathUtils.degToRad(12);
+  // 테일 핀은 Blender에서 토아웃 12°(수직축) 뒤 바깥 30°(길이축)로 돌렸다. 같은 순서로 투영 방향을 맞춘다.
+  const deg = THREE.MathUtils.degToRad;
   const finRot = (s) => new THREE.Euler().setFromQuaternion(new THREE.Quaternion()
-    .setFromAxisAngle(V(0, 0, 1), -s * lean).multiply(new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), s * H)));
+    .setFromAxisAngle(V(0, 0, 1), -s * deg(30))
+    .multiply(new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), -s * deg(12)))
+    .multiply(new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), s * H)));
   const jobs = [
-    ['front_cowl', cowlArt, V(0, 0.64, 2.06), new THREE.Euler(-H, 0, 0), V(1.7, 0.78, 1.0)],
-    ['sidepod_L', sideArt(false), V(0.9, 0.30, 0.10), new THREE.Euler(0, H, 0), V(0.86, 0.215, 0.3)],
-    ['sidepod_R', sideArt(true), V(-0.9, 0.30, 0.10), new THREE.Euler(0, -H, 0), V(0.86, 0.215, 0.3)],
-    ['tailfin_L', finNum, V(0.66, 1.03, -2.0), finRot(1), V(0.30, 0.30, 0.16)],
-    ['tailfin_R', finNum, V(-0.66, 1.03, -2.0), finRot(-1), V(0.30, 0.30, 0.16)],
+    ['front_cowl', cowlArt, V(0, 0.64, 1.98), new THREE.Euler(-H, 0, 0), V(2.1, 0.96, 1.0)],
+    ['body', sideArt(false), V(0.62, 0.60, -1.0), new THREE.Euler(0, H, 0), V(0.80, 0.18, 0.5)],
+    ['body', sideArt(true), V(-0.62, 0.60, -1.0), new THREE.Euler(0, -H, 0), V(0.80, 0.18, 0.5)],
+    ['tailfin_L', finNum, V(1.28, 1.13, -1.86), finRot(1), V(0.34, 0.30, 0.16)],
+    ['tailfin_R', finNum, V(-1.28, 1.13, -1.86), finRot(-1), V(0.34, 0.30, 0.16)],
   ];
   for (const [name, tex, pos, rot, size] of jobs) {
     const target = nodes[name];
